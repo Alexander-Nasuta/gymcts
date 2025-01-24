@@ -16,22 +16,14 @@ if __name__ == '__main__':
 
     env = DisjunctiveGraphJspEnv(
         jsp_instance=ft06,
-        reward_function="makespan_scaled_by_lb",
+        reward_function="machine_utilization_ignore_unused_machines",
         c_lb=ft06_makespan,
     )
     # reward should range from -1 to 1 in order to work with the ubc score
     # otherwise the c value should be adjusted
     # instead of adjusting c value of the ubc score, we can adjust the reward function
-    env = TransformReward(env, lambda r: r + 2 if r != 0 else r)
+    env = TransformReward(env, lambda r: r / 36)
     env.reset()
-
-    #for i in range(37):
-    #   obs , rew, term, trun, info = env.step(i)
-    #   env.render()
-    #   print(f"reward: {rew}")
-
-    #sys.exit(1)
-
 
     def mask_fn(env: gym.Env) -> np.ndarray:
         return env.unwrapped.valid_action_mask()
@@ -45,13 +37,12 @@ if __name__ == '__main__':
 
     agent = SoloMCTSAgent(
         env=env,
-        number_of_simulations_per_step=100,
+        number_of_simulations_per_step=50,
         clear_mcts_tree_after_step=True,
-        render_tree_after_step=False,
+        render_tree_after_step=True,
         exclude_unvisited_nodes_from_render=True
     )
 
-    log.setLevel(20)
     actions = agent.solve()
 
     for a in actions:

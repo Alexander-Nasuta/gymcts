@@ -1,3 +1,5 @@
+import pytest
+
 import gymnasium as gym
 
 from gymcts.gymcts_agent import SoloMCTSAgent
@@ -54,3 +56,13 @@ def test_cartpole():
         step += 1
 
     assert step >= 475
+
+
+def test_mountain_car_continuous():
+    env = gym.make("MountainCarContinuous-v0")
+    env.reset()
+
+    with pytest.raises(ValueError):
+        # continuous action spaces are not supported
+        env = NaiveSoloMCTSGymEnvWrapper(env)
+

@@ -7,9 +7,10 @@ from jsp_instance_utils.instances import ft06, ft06_makespan
 from gymcts.gymcts_agent import SoloMCTSAgent
 from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
 
-#from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.logger import log
 
 if __name__ == '__main__':
+    log.debug("Starting example")
 
     env = DisjunctiveGraphJspEnv(jsp_instance=ft06)
     env.reset()
@@ -27,8 +28,9 @@ if __name__ == '__main__':
 
     agent = SoloMCTSAgent(env=env)
 
-    actions = agent.solve()
+    actions = agent.solve(num_simulations_per_step=10)
     for a in actions:
         obs, rew, term, trun, info = env.step(a)
         env.render()
     print(info["episode"]["r"])
+

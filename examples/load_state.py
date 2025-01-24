@@ -20,10 +20,7 @@ class GraphMatrixGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
         env.valid_action_list()
 
     def load_state(self, state: Any) -> None:
-        self.env.unwrapped.render(mode="debug")
-        print(f"Loading state: {state}")
         self.env.unwrapped.load_state(state)
-        self.env.unwrapped.render(mode="debug")
 
     def is_terminal(self) -> bool:
         return self.env.unwrapped.is_terminal_state()
@@ -33,7 +30,6 @@ class GraphMatrixGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
 
     def rollout(self) -> float:
         res = self.env.unwrapped.random_rollout()
-        print(f"Rollout: {res}" )
         return res
 
     def get_state(self) -> Any:
@@ -64,19 +60,17 @@ if __name__ == '__main__':
     env.reset()
 
 
+    env = GraphMatrixGYMCTSWrapper(env)
+
     env.step(1)
     env.step(2)
 
     state = env.get_state()
-    env.render(mode="debug")
+    env.unwrapped.render(mode="debug")
 
     env.reset()
-    env.render(mode="debug")
+    env.unwrapped.render(mode="debug")
 
     env.load_state(state)
-
-
-
-
-    #env = GraphMatrixGYMCTSWrapper(env)
+    env.unwrapped.render(mode="debug")
 

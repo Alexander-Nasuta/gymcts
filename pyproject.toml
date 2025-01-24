@@ -3,9 +3,9 @@ requires = ["setuptools>=65.5.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "graph-matrix-jsp-env"
+name = "gymcts"
 version = "0.1.0"
-description = "An enviorment for job shop scheduling using the disjunctive graph apporach and the graph matrix datastructure."
+description = "A minimalistic implementation of the Monte Carlo Tree Search algorithm for planning problems fomulated as gymnaisum reinforcement learning environments."
 readme = "README.md"
 authors = [{ name = "Alexander Nasuta", email = "alexander.nasuta@wzl-iqs.rwth-aachen.de" }]
 license = { file = "LICENSE" }
@@ -20,18 +20,21 @@ dependencies = [
     "numpy",
     "gymnasium",
     "matplotlib<3.9",
-    "jsp-vis"
 ]
 requires-python = ">=3.9"
 
 
 [project.optional-dependencies]
 examples = [
-    "stable_baselines3",
-    "sb3_contrib",
     "jsp_instance_utils",
+    "graph-matrix-jsp-env",
+    "graph-jsp-env",
 ]
 dev = [
+    "jsp_instance_utils",
+    "graph-matrix-jsp-env",
+    "graph-jsp-env",
+
     "pip-tools",
     "pytest",
     "pytest-cov",
@@ -54,7 +57,7 @@ dev = [
 Homepage = "https://github.com/Alexander-Nasuta/pypitemplate"
 
 [tool.pytest.ini_options]
-addopts = "--cov=graph_matrix_jsp_env -p no:warnings"
+addopts = "--cov=gymcts -p no:warnings"
 testpaths = [
     "tests",
 ]
