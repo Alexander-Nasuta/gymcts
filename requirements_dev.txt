@@ -39,14 +39,19 @@ click==8.1.8
     #   uvicorn
 cloudpickle==3.1.1
     # via
+    #   gym
     #   gymnasium
     #   stable-baselines3
+codecov==2.1.13
+    # via jssenv
 colorama==0.4.6
     # via sphinx-autobuild
 contourpy==1.3.1
     # via matplotlib
 coverage[toml]==7.6.10
-    # via pytest-cov
+    # via
+    #   codecov
+    #   pytest-cov
 cycler==0.12.1
     # via matplotlib
 defusedxml==0.7.1
@@ -75,6 +80,10 @@ graph-jsp-env==0.3.3
     # via gymcts (pyproject.toml)
 graph-matrix-jsp-env==0.1.0
     # via gymcts (pyproject.toml)
+gym==0.26.2
+    # via jssenv
+gym-notices==0.0.8
+    # via gym
 gymnasium==1.0.0
     # via
     #   graph-jsp-env
@@ -87,6 +96,8 @@ idna==3.10
     # via
     #   anyio
     #   requests
+imageio==2.37.0
+    # via jssenv
 imagesize==1.4.1
     # via sphinx
 immutabledict==4.2.1
@@ -112,12 +123,14 @@ jsonschema==4.23.0
     # via nbformat
 jsonschema-specifications==2024.10.1
     # via jsonschema
-jsp-instance-utils==1.0.1
+jsp-instance-utils==1.0.2
     # via gymcts (pyproject.toml)
 jsp-vis==1.1.0
     # via
     #   graph-matrix-jsp-env
     #   jsp-instance-utils
+jssenv==1.0.2
+    # via gymcts (pyproject.toml)
 jupyter-client==8.6.3
     # via nbclient
 jupyter-core==5.7.2
@@ -132,6 +145,7 @@ kaleido==0.2.1
     # via
     #   graph-jsp-env
     #   jsp-vis
+    #   jssenv
 keyring==25.6.0
     # via twine
 kiwisolver==1.4.8
@@ -194,10 +208,13 @@ numpy==1.26.4
     #   contourpy
     #   graph-jsp-env
     #   graph-matrix-jsp-env
+    #   gym
     #   gymcts (pyproject.toml)
     #   gymnasium
+    #   imageio
     #   jsp-instance-utils
     #   jsp-vis
+    #   jssenv
     #   matplotlib
     #   opencv-python
     #   ortools
@@ -207,7 +224,7 @@ opencv-python==4.11.0.86
     # via
     #   graph-jsp-env
     #   jsp-vis
-ortools==9.11.4210
+ortools==9.12.4544
     # via jsp-instance-utils
 packaging==24.2
     # via
@@ -222,12 +239,15 @@ pandas==2.2.3
     # via
     #   graph-jsp-env
     #   jsp-vis
+    #   jssenv
     #   ortools
     #   stable-baselines3
 pandocfilters==1.5.1
     # via nbconvert
 pillow==11.1.0
-    # via matplotlib
+    # via
+    #   imageio
+    #   matplotlib
 pip-tools==7.4.1
     # via gymcts (pyproject.toml)
 pkginfo==1.12.0
@@ -238,10 +258,13 @@ plotly==5.24.1
     # via
     #   graph-jsp-env
     #   jsp-vis
+    #   jssenv
 pluggy==1.5.0
     # via pytest
-protobuf==5.26.1
+protobuf==5.29.3
     # via ortools
+psutil==7.0.0
+    # via jssenv
 pycodestyle==2.12.1
     # via flake8
 pyflakes==3.2.0
@@ -262,6 +285,7 @@ pyproject-hooks==1.2.0
 pytest==8.3.4
     # via
     #   gymcts (pyproject.toml)
+    #   jssenv
     #   pytest-cov
 pytest-cov==6.0.0
     # via gymcts (pyproject.toml)
@@ -284,7 +308,9 @@ referencing==0.35.1
     #   jsonschema-specifications
 requests==2.32.3
     # via
+    #   codecov
     #   jsp-instance-utils
+    #   jssenv
     #   requests-toolbelt
     #   sphinx
     #   twine

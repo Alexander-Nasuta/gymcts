@@ -1,7 +1,7 @@
 import gymnasium as gym
 
 from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
 
 from gymcts.logger import log
 
@@ -14,8 +14,8 @@ if __name__ == '__main__':
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True, render_mode="ansi")
     env.reset()
 
-    # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
-    env = NaiveSoloMCTSGymEnvWrapper(env)
+    # 1. wrap the environment with the wrapper
+    env = DeterministicSoloMCTSGymEnvWrapper(env)
 
     # 2. create the agent
     agent = SoloMCTSAgent(

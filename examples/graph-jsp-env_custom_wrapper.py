@@ -1,10 +1,8 @@
-from copy import copy
 from typing import Any
 
 import random
 
 import gymnasium as gym
-import numpy as np
 
 from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
 from jsp_instance_utils.instances import ft06, ft06_makespan
@@ -16,7 +14,7 @@ from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
 from gymcts.logger import log
 
 
-class GraphMatrixGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
+class GraphJspGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
 
     def __init__(self, env: DisjunctiveGraphJspEnv):
         gym.Wrapper.__init__(self, env)
@@ -34,8 +32,11 @@ class GraphMatrixGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
 
     def rollout(self) -> float:
         terminal = env.is_terminal()
+
         if terminal:
-            return - env.unwrapped.get_makespan() / 55 + 2
+            lower_bound = env.unwrapped.reward_function_parameters['scaling_divisor']
+            return - env.unwrapped.get_makespan() / lower_bound + 2
+
         reward = 0
         while not terminal:
             action = random.choice(self.get_valid_actions())
@@ -50,25 +51,26 @@ class GraphMatrixGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
 if __name__ == '__main__':
     log.setLevel(20)
 
-
     env_kwargs = {
         "jps_instance": ft06,
         "default_visualisations": ["gantt_console", "graph_console"],
         "reward_function_parameters": {
             "scaling_divisor": 55.0
-        }
+        },
+        "reward_function": "nasuta",
     }
 
     env = DisjunctiveGraphJspEnv(**env_kwargs)
     env.reset()
 
-    env = GraphMatrixGYMCTSWrapper(env)
+    env = GraphJspGYMCTSWrapper(env)
 
     agent = SoloMCTSAgent(
         env=env,
+        clear_mcts_tree_after_step=True,
         render_tree_after_step=True,
         exclude_unvisited_nodes_from_render=True,
-        number_of_simulations_per_step=100,
+        number_of_simulations_per_step=50,
     )
 
     root = agent.search_root_node.get_root()
@@ -80,5 +82,3 @@ if __name__ == '__main__':
     env.render()
     makespan = env.unwrapped.get_makespan()
     print(f"makespan: {makespan}")
-
-

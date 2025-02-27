@@ -4,13 +4,29 @@ from rich.logging import RichHandler
 
 FORMAT = "%(message)s"
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format=FORMAT,
     datefmt="[%X]",
     handlers=[RichHandler(show_path=False)]
 )
 
 log = logging.getLogger("rich")
+
+banner_sw = f"""
+
+      ▟█████▛▜█▙▟█▛ ▟█▙  ▟██▛▟█████▛████▛▟████▛
+     ▟█▛      ▜██▛ ▟█▛██▛██▛▟█▛     ▟█▛  ▜███▙ 
+    ▟█▛ ▟█▛   ▟█▛ ▟█▛   ▟█▛▟█▛     ▟█▛      ▟█▛ 
+    ▜████▛   ▟█▛ ▟█▛   ▟█▛ ▜████▛ ▟█▛  ▟████▛  
+    
+    
+    
+                                       
+"""
+
+
+print(banner_sw)
+
 
 
 if __name__ == '__main__':

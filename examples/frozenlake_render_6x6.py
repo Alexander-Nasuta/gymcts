@@ -25,8 +25,8 @@ if __name__ == '__main__':
         'FrozenLake-v1',
         desc=custom_map,
         map_name=None,
-        is_slippery=True,
-        render_mode="ansi"
+        is_slippery=False,
+        render_mode="rgb_array"
     )
     env.reset()
 
@@ -37,10 +37,19 @@ if __name__ == '__main__':
     agent = SoloMCTSAgent(env=env, clear_mcts_tree_after_step=False)
 
     # 3. solve the environment
-    actions = agent.solve(num_simulations_per_step=200)
+    actions = agent.solve(num_simulations_per_step=400)
 
     # 4. render the environment solution in the terminal
-    print(env.render())
+    env = gym.wrappers.RecordVideo(
+        env,
+        video_folder="./videos",
+        episode_trigger=lambda episode_id: True,
+        name_prefix="frozenlake_6x6"
+    )
+    env.reset()
+
+
     for a in actions:
         obs, rew, term, trun, info = env.step(a)
-        print(env.render())
+
+    env.close()

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gymcts"
-version = "0.1.0"
+version = "1.0.0"
 description = "A minimalistic implementation of the Monte Carlo Tree Search algorithm for planning problems fomulated as gymnaisum reinforcement learning environments."
 readme = "README.md"
 authors = [{ name = "Alexander Nasuta", email = "alexander.nasuta@wzl-iqs.rwth-aachen.de" }]
@@ -26,14 +26,15 @@ requires-python = ">=3.9"
 
 [project.optional-dependencies]
 examples = [
-    "jsp_instance_utils",
+    "jsp-instance-utils",
     "graph-matrix-jsp-env",
     "graph-jsp-env",
 ]
 dev = [
-    "jsp_instance_utils",
+    "jsp-instance-utils",
     "graph-matrix-jsp-env",
     "graph-jsp-env",
+    "JSSEnv",
 
     "pip-tools",
     "pytest",
@@ -47,6 +48,7 @@ dev = [
     "sphinx",
     "myst-parser", # .md support for sphinx
     "sphinx-autobuild",
+    #
     "furo", # cool theme
     "twine",
     "sphinx-copybutton", # for code copy buttons
