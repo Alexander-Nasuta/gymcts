@@ -13,16 +13,14 @@ TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
 
 
 class SoloMCTSAgent:
-
     render_tree_after_step: bool = False
     render_tree_max_depth: int = 2
     exclude_unvisited_nodes_from_render: bool = False
     number_of_simulations_per_step: int = 25
 
     env: SoloMCTSGymEnv
-    search_root_node: SoloMCTSNode # NOTE: this is not the same as the root of the tree!
+    search_root_node: SoloMCTSNode  # NOTE: this is not the same as the root of the tree!
     clear_mcts_tree_after_step: bool
-
 
     def __init__(self,
                  env: SoloMCTSGymEnv,
@@ -35,7 +33,6 @@ class SoloMCTSAgent:
         # check if action space of env is discrete
         if not isinstance(env.action_space, gym.spaces.Discrete):
             raise ValueError("Action space must be discrete.")
-
 
         self.render_tree_after_step = render_tree_after_step
         self.exclude_unvisited_nodes_from_render = exclude_unvisited_nodes_from_render
@@ -69,8 +66,6 @@ class SoloMCTSAgent:
         log.debug(f"Selected leaf node: {temp_node}")
         return temp_node
 
-
-
     def expand_node(self, node: SoloMCTSNode) -> None:
         log.debug(f"expanding node: {node}")
         # EXPANSION STRATEGY
@@ -91,7 +86,7 @@ class SoloMCTSAgent:
 
         node.children = child_dict
 
-    def solve(self, num_simulations_per_step:int = None, render_tree_after_step: bool = None) -> list[int]:
+    def solve(self, num_simulations_per_step: int = None, render_tree_after_step: bool = None) -> list[int]:
 
         if num_simulations_per_step is None:
             num_simulations_per_step = self.number_of_simulations_per_step
@@ -105,7 +100,8 @@ class SoloMCTSAgent:
         action_list = []
 
         while not current_node.terminal:
-            next_action, current_node = self.perform_mcts_step(num_simulations=num_simulations_per_step, render_tree_after_step=render_tree_after_step)
+            next_action, current_node = self.perform_mcts_step(num_simulations=num_simulations_per_step,
+                                                               render_tree_after_step=render_tree_after_step)
             log.info(f"selected action {next_action} after {num_simulations_per_step} simulations.")
             action_list.append(next_action)
             log.info(f"current action list: {action_list}")
@@ -114,25 +110,20 @@ class SoloMCTSAgent:
         # restore state of current node
         return action_list
 
-
-
     def _load_state(self, node: SoloMCTSNode) -> None:
         if isinstance(self.env, NaiveSoloMCTSGymEnvWrapper):
             self.env = copy.deepcopy(node.state)
         else:
             self.env.load_state(node.state)
 
-
-
-    def perform_mcts_step(self, search_start_node:SoloMCTSNode=None, num_simulations:int=None, render_tree_after_step:bool = None) -> tuple[int, SoloMCTSNode]:
-
-        if render_tree_after_step is None:
-            render_tree_after_step = self.render_tree_after_step
-
+    def perform_mcts_step(self, search_start_node: SoloMCTSNode = None, num_simulations: int = None,
+                          render_tree_after_step: bool = None) -> tuple[int, SoloMCTSNode]:
 
         if render_tree_after_step is None:
             render_tree_after_step = self.render_tree_after_step
 
+        if render_tree_after_step is None:
+            render_tree_after_step = self.render_tree_after_step
 
         if num_simulations is None:
             num_simulations = self.number_of_simulations_per_step
@@ -158,9 +149,7 @@ class SoloMCTSAgent:
 
         return action, next_node
 
-
-
-    def vanilla_mcts_search(self, search_start_node:SoloMCTSNode=None, num_simulations=10) -> int:
+    def vanilla_mcts_search(self, search_start_node: SoloMCTSNode = None, num_simulations=10) -> int:
         log.debug(f"performing one MCTS search step with {num_simulations} simulations")
         if search_start_node is None:
             search_start_node = self.search_root_node
@@ -184,15 +173,12 @@ class SoloMCTSAgent:
 
             self.backpropagation(node=leaf_node, episode_return=episode_return)
 
-
         if self.render_tree_after_step:
             self.show_mcts_tree()
 
         return search_start_node.get_best_action()
 
-
-
-    def show_mcts_tree(self, start_node: SoloMCTSNode = None, tree_max_depth:int = None) -> None:
+    def show_mcts_tree(self, start_node: SoloMCTSNode = None, tree_max_depth: int = None) -> None:
 
         if start_node is None:
             start_node = self.search_root_node
@@ -204,6 +190,8 @@ class SoloMCTSAgent:
         for line in self._generate_mcts_tree(start_node=start_node, depth=tree_max_depth):
             print(line)
 
+    def show_mcts_tree_from_root(self, tree_max_depth: int = None) -> None:
+        self.show_mcts_tree(start_node=self.search_root_node.get_root(), tree_max_depth=tree_max_depth)
 
     def backpropagation(self, node: SoloMCTSNode, episode_return: float) -> None:
         log.debug(f"performing backpropagation from leaf node: {node}")
@@ -221,7 +209,7 @@ class SoloMCTSAgent:
         node.max_value = max(node.max_value, episode_return)
         node.min_value = min(node.min_value, episode_return)
 
-    def _generate_mcts_tree(self, start_node: SoloMCTSNode = None, prefix: str=None, depth:int=None) -> list[str]:
+    def _generate_mcts_tree(self, start_node: SoloMCTSNode = None, prefix: str = None, depth: int = None) -> list[str]:
 
         if prefix is None:
             prefix = ""
@@ -269,8 +257,5 @@ class SoloMCTSAgent:
                 yield from self._generate_mcts_tree(
                     current_node,
                     prefix=prefix + extension,
-                    depth=depth-1 if depth is not None else None
+                    depth=depth - 1 if depth is not None else None
                 )
-
-
-

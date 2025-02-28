@@ -11,7 +11,7 @@ log.setLevel(20)
 
 if __name__ == '__main__':
     # 0. create the environment
-    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True, render_mode="ansi")
+    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="ansi")
     env.reset()
 
     # 1. wrap the environment with the wrapper
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # 5. print the solution
     # read the solution from the info provided by the RecordEpisodeStatistics wrapper
-    # (that NaiveSoloMCTSGymEnvWrapper uses internally)
+    # (that DeterministicSoloMCTSGymEnvWrapper uses internally)
     episode_length = info["episode"]["l"]
     episode_return = info["episode"]["r"]
 

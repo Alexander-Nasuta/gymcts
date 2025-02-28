@@ -8,6 +8,8 @@
 :caption: 'Contents:'
 :maxdepth: 2
 
-
-example-gallery
+cartpole
+visualisation
+example-galery
+development-setup
 ```

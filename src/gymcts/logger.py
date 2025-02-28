@@ -25,10 +25,6 @@ banner_sw = f"""
 """
 
 
-print(banner_sw)
-
-
-
 if __name__ == '__main__':
     log.debug("Hello, World!")
     log.info("Hello, World!")

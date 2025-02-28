@@ -56,7 +56,10 @@ class DeterministicSoloMCTSGymEnvWrapper(SoloMCTSGymEnv, gym.Wrapper):
             self._wrapper_action_history.append(action)
 
     def is_terminal(self) -> bool:
-        return not len(self.get_valid_actions())
+        if not len(self.get_valid_actions()):
+            return True
+        else:
+            return self._terminal_flag
 
     def action_masks(self) -> np.ndarray | None:
         return self._action_mask_fn(self.env) if self._action_mask_fn is not None else None

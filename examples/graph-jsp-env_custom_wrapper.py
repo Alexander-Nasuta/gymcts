@@ -9,7 +9,6 @@ from jsp_instance_utils.instances import ft06, ft06_makespan
 
 from gymcts.gymcts_agent import SoloMCTSAgent
 from gymcts.gymcts_gym_env import SoloMCTSGymEnv
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
 
 from gymcts.logger import log
 
@@ -55,7 +54,7 @@ if __name__ == '__main__':
         "jps_instance": ft06,
         "default_visualisations": ["gantt_console", "graph_console"],
         "reward_function_parameters": {
-            "scaling_divisor": 55.0
+            "scaling_divisor": ft06_makespan
         },
         "reward_function": "nasuta",
     }

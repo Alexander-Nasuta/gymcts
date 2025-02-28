@@ -33,11 +33,22 @@ The usage of a MCTS agent can roughly organised into the following steps:
 
 The GYMCTS package provides a two types of wrappers for Gymnasium-style environments:
 - `NaiveSoloMCTSGymEnvWrapper`: A wrapper that uses deepcopies of the environment to save a snapshot of the environment state for each node in the MCTS tree.
-- `RecordEpisodeStatistics`: A wrapper that records the episode statistics (e.g. episode length, episode return) and provides them in the info dictionary.
+- `DeterministicSoloMCTSGymEnvWrapper`: A wrapper that saves the action sequence that lead to the current state in the MCTS node.
 
-### FrozenLake Example
+These wrappers can be used with the `SoloMCTSAgent` to solve the environment. 
+The wrapper implement methods that are required by the `SoloMCTSAgent` to interact with the environment.
+GYMCTS is designed to use a single environment instance and reconstructing the environment state form a state snapshot, when needed.
 
-Here is a minimal example of how to use the package with the FrozenLake environment and the NaiveSoloMCTSGymEnvWrapper:
+NOTE: MCTS works best when the return of an episode is in the range of [-1, 1]. Please adjust the reward function of the environment accordingly (or change the ubc-scaling parameter of the MCTS agent).
+Adjusting the reward function of the environment is easily done with a [NormalizeReward](https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.NormalizeReward) or [TransformReward](https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.TransformReward) Wrapper.
+
+NormalizeReward(env, gamma=0.99, epsilon=1e-8)
+env = TransformReward(env, lambda r: r / 36)
+### FrozenLake Example (NaiveSoloMCTSGymEnvWrapper)
+
+A minimal example of how to use the package with the FrozenLake environment and the NaiveSoloMCTSGymEnvWrapper is provided in the following code snippet below.
+The NaiveSoloMCTSGymEnvWrapper can be used with non-deterministic environments, such as the FrozenLake environment with slippery ice.
+
 ```python
 import gymnasium as gym
 
@@ -88,86 +99,316 @@ if __name__ == '__main__':
         print(f"Environment not solved in {episode_length} steps.")
 ```
 
-Here is a minimal example of how to use the package with the FrozenLake environment and the NaiveSoloMCTSGymEnvWrapper:
+### FrozenLake Example (DeterministicSoloMCTSGymEnvWrapper)
 
-### Stable Baselines3 Example
+A minimal example of how to use the package with the FrozenLake environment and the DeterministicSoloMCTSGymEnvWrapper is provided in the following code snippet below.
+The DeterministicSoloMCTSGymEnvWrapper can be used with deterministic environments, such as the FrozenLake environment without slippery ice.
 
-To train a PPO agent using the environment with Stable Baselines3 one first needs to install the required dependencies:
-
-```shell
-pip install stable-baselines3
-pip install sb3-contrib
-```
-
-Then one can use the following code to train a PPO agent:
+The DeterministicSoloMCTSGymEnvWrapper saves the action sequence that lead to the current state in the MCTS node. 
 
 ```python
+import gymnasium as gym
+
+from gymcts.gymcts_agent import SoloMCTSAgent
+from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
+
+from gymcts.logger import log
+
+# set log level to 20 (INFO)
+# set log level to 10 (DEBUG) to see more detailed information
+log.setLevel(20)
+
+if __name__ == '__main__':
+    # 0. create the environment
+    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="ansi")
+    env.reset()
+
+    # 1. wrap the environment with the wrapper
+    env = DeterministicSoloMCTSGymEnvWrapper(env)
+
+    # 2. create the agent
+    agent = SoloMCTSAgent(
+        env=env,
+        clear_mcts_tree_after_step=False,
+        render_tree_after_step=True,
+        number_of_simulations_per_step=50,
+        exclude_unvisited_nodes_from_render=True
+    )
+
+    # 3. solve the environment
+    actions = agent.solve()
+
+    # 4. render the environment solution in the terminal
+    print(env.render())
+    for a in actions:
+        obs, rew, term, trun, info = env.step(a)
+        print(env.render())
+
+    # 5. print the solution
+    # read the solution from the info provided by the RecordEpisodeStatistics wrapper
+    # (that DeterministicSoloMCTSGymEnvWrapper uses internally)
+    episode_length = info["episode"]["l"]
+    episode_return = info["episode"]["r"]
+
+    if episode_return == 1.0:
+        print(f"Environment solved in {episode_length} steps.")
+    else:
+        print(f"Environment not solved in {episode_length} steps.")
+```
+
+
+### FrozenLake Video Example
+
+![FrozenLake Video as .gif](./resources/frozenlake_4x4-episode-0-video-to-gif-converted.gif)
+
+To create a video of the solution of the FrozenLake environment, you can use the following code snippet:
+
+```python  
+import gymnasium as gym
+
+from gymcts.gymcts_agent import SoloMCTSAgent
+from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+
+from gymcts.logger import log
+
+log.setLevel(20)
+
+from gymnasium.envs.toy_text.frozen_lake import FrozenLakeEnv
+
+if __name__ == '__main__':
+    log.debug("Starting example")
+
+    # 0. create the environment
+    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="rgb_array")
+    env.reset()
+
+    # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
+    env = NaiveSoloMCTSGymEnvWrapper(env)
+
+    # 2. create the agent
+    agent = SoloMCTSAgent(
+        env=env,
+        clear_mcts_tree_after_step=False,
+        render_tree_after_step=True,
+        number_of_simulations_per_step=200,
+        exclude_unvisited_nodes_from_render=True
+    )
+
+    # 3. solve the environment
+    actions = agent.solve()
+
+    # 4. render the environment solution
+    env = gym.wrappers.RecordVideo(
+        env,
+        video_folder="./videos",
+        episode_trigger=lambda episode_id: True,
+        name_prefix="frozenlake_4x4"
+    )
+    env.reset()
+
+    for a in actions:
+        obs, rew, term, trun, info = env.step(a)
+    env.close()
+
+    # 5. print the solution
+    # read the solution from the info provided by the RecordEpisodeStatistics wrapper (that NaiveSoloMCTSGymEnvWrapper wraps internally)
+    episode_length = info["episode"]["l"]
+    episode_return = info["episode"]["r"]
+
+    if episode_return == 1.0:
+        print(f"Environment solved in {episode_length} steps.")
+    else:
+        print(f"Environment not solved in {episode_length} steps.")
+```
+
+### Job Shop Scheduling (CustomWrapper)
+
+![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/default-render.gif)
+
+The following code snippet shows how to use the package with the [graph-jsp-env](https://github.com/Alexander-Nasuta/graph-jsp-env) environment.
+
+First, install the environment via pip:
+
+```shell
+pip install graph-jsp-env
+```
+
+and a utility package for JSP instances:
+
+```shell
+pip install jsp-instance-utils
+```
+
+Then, you can use the following code snippet to solve the environment with the MCTS agent:
+```
+
+```python  
+from typing import Any
+
+import random
+
+import gymnasium as gym
+
+from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
+from jsp_instance_utils.instances import ft06, ft06_makespan
+
+from gymcts.gymcts_agent import SoloMCTSAgent
+from gymcts.gymcts_gym_env import SoloMCTSGymEnv
+
+from gymcts.logger import log
+
+
+class GraphJspGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
+
+    def __init__(self, env: DisjunctiveGraphJspEnv):
+        gym.Wrapper.__init__(self, env)
+
+    def load_state(self, state: Any) -> None:
+        self.env.reset()
+        for action in state:
+            self.env.step(action)
+
+    def is_terminal(self) -> bool:
+        return self.env.unwrapped.is_terminal()
+
+    def get_valid_actions(self) -> list[int]:
+        return list(self.env.unwrapped.valid_actions())
+
+    def rollout(self) -> float:
+        terminal = env.is_terminal()
+
+        if terminal:
+            lower_bound = env.unwrapped.reward_function_parameters['scaling_divisor']
+            return - env.unwrapped.get_makespan() / lower_bound + 2
+
+        reward = 0
+        while not terminal:
+            action = random.choice(self.get_valid_actions())
+            obs, reward, terminal, truncated, _ = env.step(action)
+
+        return reward + 2
+
+    def get_state(self) -> Any:
+        return env.unwrapped.get_action_history()
+
+
+if __name__ == '__main__':
+    log.setLevel(20)
+
+    env_kwargs = {
+        "jps_instance": ft06,
+        "default_visualisations": ["gantt_console", "graph_console"],
+        "reward_function_parameters": {
+            "scaling_divisor": ft06_makespan
+        },
+        "reward_function": "nasuta",
+    }
+
+    env = DisjunctiveGraphJspEnv(**env_kwargs)
+    env.reset()
+
+    env = GraphJspGYMCTSWrapper(env)
+
+    agent = SoloMCTSAgent(
+        env=env,
+        clear_mcts_tree_after_step=True,
+        render_tree_after_step=True,
+        exclude_unvisited_nodes_from_render=True,
+        number_of_simulations_per_step=50,
+    )
+
+    root = agent.search_root_node.get_root()
+
+    actions = agent.solve(render_tree_after_step=True)
+    for a in actions:
+        obs, rew, term, trun, info = env.step(a)
+
+    env.render()
+    makespan = env.unwrapped.get_makespan()
+    print(f"makespan: {makespan}")
 
 ```
 
 ## Visualizations
 
-The environment offers multiple visualisation options.
-There are four visualisations that can be mixed and matched:
-- `human` (default): prints a Gantt chart visualisation to the console.
-- `ansi`: prints a visualisation of the graph matrix and the Gantt chart to the console.
-- `debug`: prints a visualisation of the graph matrix. The debugs visualisation is maps the elements of the successor lists and unknown list to the original graph indices of the takes ad uses colors to separate the different elements. It also prints the Gantt chart and some additional information.
-- `window`: creates a Gantt chart visualisation in a separate window.
-- `rgb_array`: creates a Gantt chart visualisation as a RGB array. This mode return the RGB array of the `window` visualisation. This can be used to create a video of the Gantt chart visualisation. 
+The MCTS agent provides a visualisation of the MCTS tree.
+Below is an example code snippet that shows how to use the visualisation options of the MCTS agent.
 
-### Examples
+The following metrics are displayed in the visualisation:
+- `N`: the number of visits of the node
+- `Q_v`: the average return of the node
+- `ubc`: the upper confidence bound of the node
+- `a`: the action that leads to the node
+- `best`: the highest return of any rollout from the node
 
-For the following Job Shop Scheduling Problem (JSP) instance:
+`Q_v` and `ubc` have a color gradient from red to green, where red indicates a low value and green indicates a high value.
+The color gradient is based on the minimum and maximum values of the respective metric in the tree.
+
+The visualisation is rendered in the terminal and can be limited to a certain depth of the tree.
+The default depth is 2.
+
 
 ```python
-from graph_matrix_jsp_env.disjunctive_jsp_env import DisjunctiveGraphJspEnv
-import numpy as np
+import gymnasium as gym
+
+from gymcts.gymcts_agent import SoloMCTSAgent
+from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
+from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+
+from gymcts.logger import log
+
+# set log level to 20 (INFO)
+# set log level to 10 (DEBUG) to see more detailed information
+log.setLevel(20)
 
 if __name__ == '__main__':
-    custom_jsp_instance = np.array([
-        [
-            [0, 1, 2, 3],  # job 0
-            [0, 2, 1, 3]  # job 1
-        ],
-        [
-            [11, 3, 3, 12],  # task durations of job 0
-            [5, 16, 7, 4]  # task durations of job 1
-        ]
+    # create the environment
+    env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="ansi")
+    env.reset()
 
-    ], dtype=np.int32)
-    env = DisjunctiveGraphJspEnv(
-        jsp_instance=custom_jsp_instance,
+    # wrap the environment with the naive wrapper or a custom gymcts wrapper
+    env = DeterministicSoloMCTSGymEnvWrapper(env)
+
+    # create the agent
+    agent = SoloMCTSAgent(
+        env=env,
+        clear_mcts_tree_after_step=False,
+        render_tree_after_step=False,
+        number_of_simulations_per_step=50,
+        exclude_unvisited_nodes_from_render=True,  # weather to exclude unvisited nodes from the render
+        render_tree_max_depth=2  # the maximum depth of the tree to render
     )
-    obs, info = env.reset()
-    mode = 'debug' # replace with 'human', 'ansi', 'window', 'rgb_array' for different visualizations
-    env.render(mode=mode) 
 
-    for a in [5, 1, 2, 6, 3, 7, 4, 8]:
-        env.step(a)
-        env.render(mode=mode)
+    # solve the environment
+    actions = agent.solve()
 
-    env.render()
+    # render the MCTS tree from the root
+    # search_root_node is the node that corresponds to the current state of the environment in the search process
+    # since we called agent.solve() we are at the end of the search process
+    log.info(f"MCTS Tree starting at the final state of the environment (actions: {agent.search_root_node.state})")
+    agent.show_mcts_tree(
+        start_node=agent.search_root_node,
+    )
+
+    # the parent of the terminal node (which we are rendering below) is the search root node of the previous step in the
+    # MCTS solving process
+    log.info(
+        f"MCTS Tree starting at the pre-final state of the environment (actions: {agent.search_root_node.parent.state})")
+    agent.show_mcts_tree(
+        start_node=agent.search_root_node.parent,
+    )
+
+    # render the MCTS tree from the root
+    log.info(f"MCTS Tree starting at the root state (actions: {agent.search_root_node.get_root().state})")
+    agent.show_mcts_tree(
+        start_node=agent.search_root_node.get_root(),
+        # you can limit the depth of the tree to render to any number
+        tree_max_depth=1
+    )
 ```
 
-The individual rendering modes result in the following visualisations:
+![visualsiation example on the frozenlanke environment](./resources/mcts_visualisation.png)
 
-#### ANSI
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/asni-render.gif)
-
-#### Debug
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/debug-render.gif)
-
-#### Defualt (Human)
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/default-render.gif)
-
-### window
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/window-render.gif)
-
-The Terminal used for the visualisations is [Ghostty](https://github.com/ghostty-org/ghostty).
 
 ## State of the Project
 
@@ -196,11 +437,11 @@ clone the repository in your favorite code editor (for example PyCharm, VSCode, 
 
 using https:
 ```shell
-git clone https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv.git
+git clone https://github.com/Alexander-Nasuta/todo
 ```
 or by using the GitHub CLI:
 ```shell
-gh repo clone Alexander-Nasuta/GraphMatrixJobShopEnv
+gh repo clone Alexander-Nasuta/todo
 ```
 
 if you are using PyCharm, I recommend doing the following additional steps:
@@ -221,17 +462,17 @@ I personally use `conda` for this purpose.
 When using `conda`, you can create a new environment with the name 'my-graph-jsp-env' following command:
 
 ```shell
-conda create -n my-graph-jsp-env python=3.11
+conda create -n gymcts python=3.11
 ```
 
 Feel free to use any other name for the environment or an more recent version of python.
 Activate the environment with the following command:
 
 ```shell
-conda activate my-graph-jsp-env
+conda activate gymcts
 ```
 
-Replace `my-graph-jsp-env` with the name of your environment, if you used a different name.
+Replace `gymcts` with the name of your environment, if you used a different name.
 
 You can also use `venv` or `virtualenv` to create a virtual environment. In that case please refer to the respective documentation.
 
