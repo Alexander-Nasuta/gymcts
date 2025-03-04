@@ -1,5 +1,3 @@
-
-
 from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
 from jsp_instance_utils.instances import ft06, ft06_makespan
 

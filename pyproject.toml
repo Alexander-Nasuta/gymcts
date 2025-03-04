@@ -55,6 +55,7 @@ dev = [
     "nbsphinx", # for jupyter notebook support in sphinx
 
     "jupytext", # converting .py examples to jupyter notebook jupytext --to notebook *.py
+    "jupyter", # for jupyter notebook kernel
 ]
 
 [project.urls]

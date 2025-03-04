@@ -1,23 +1,16 @@
-import pprint
 from collections import namedtuple
 from copy import deepcopy, copy
 
-from gymnasium.spaces import Box, Discrete
-from jsp_instance_utils.instances import ft06, ft06_makespan
+from gymnasium.spaces import Discrete
+from jsp_instance_utils.instances import ft06
 from jsp_vis.console import gantt_chart_console
 
 from gymcts.gymcts_agent import GymctsAgent
-from gymcts.gymcts_action_history_wrapper import ActionHistoryMCTSGymEnvWrapper
 from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 from gymnasium.wrappers import TransformReward, NormalizeReward
 from gymcts.logger import log
 
 import gymnasium as gym
-
-from gymnasium.core import ActType, ObsType
-from typing import Any, SupportsFloat
-
-import random
 
 import pandas as pd
 import numpy as np
