@@ -2,10 +2,8 @@
 from graph_matrix_jsp_env.disjunctive_jsp_env import DisjunctiveGraphJspEnv
 from jsp_instance_utils.instances import ft06, ft06_makespan
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 from gymnasium.wrappers import TransformReward
 from gymcts.logger import log
 
@@ -22,7 +20,7 @@ if __name__ == '__main__':
     )
     # map reward to [1, -inf]
     # ideally you want the reward to be in the range of [-1, 1] for the UBC score
-    env = TransformReward(env, lambda r: r / 55.0 + 2 if r != 0 else 0.0)
+    env = TransformReward(env, lambda r: r / ft06_makespan + 2 if r != 0 else 0.0)
     env.reset()
 
 
@@ -33,13 +31,13 @@ if __name__ == '__main__':
         # helpful method we can rely on.
         return env.unwrapped.valid_action_mask()
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )
 
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         render_tree_after_step=True,
         exclude_unvisited_nodes_from_render=True,

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gymcts"
-version = "1.0.0"
+version = "1.1.0"
 description = "A minimalistic implementation of the Monte Carlo Tree Search algorithm for planning problems fomulated as gymnaisum reinforcement learning environments."
 readme = "README.md"
 authors = [{ name = "Alexander Nasuta", email = "alexander.nasuta@wzl-iqs.rwth-aachen.de" }]
@@ -53,10 +53,12 @@ dev = [
     "twine",
     "sphinx-copybutton", # for code copy buttons
     "nbsphinx", # for jupyter notebook support in sphinx
+
+    "jupytext", # converting .py examples to jupyter notebook jupytext --to notebook *.py
 ]
 
 [project.urls]
-Homepage = "https://github.com/Alexander-Nasuta/pypitemplate"
+Homepage = "https://github.com/Alexander-Nasuta/gymcts"
 
 [tool.pytest.ini_options]
 addopts = "--cov=gymcts -p no:warnings"

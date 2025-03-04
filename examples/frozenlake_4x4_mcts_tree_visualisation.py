@@ -1,8 +1,7 @@
 import gymnasium as gym
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_action_history_wrapper import ActionHistoryMCTSGymEnvWrapper
 
 from gymcts.logger import log
 
@@ -16,10 +15,10 @@ if __name__ == '__main__':
     env.reset()
 
     # wrap the environment with the naive wrapper or a custom gymcts wrapper
-    env = DeterministicSoloMCTSGymEnvWrapper(env)
+    env = ActionHistoryMCTSGymEnvWrapper(env)
 
     # create the agent
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=False,
         render_tree_after_step=False,

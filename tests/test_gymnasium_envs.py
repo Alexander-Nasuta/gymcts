@@ -2,8 +2,8 @@ import pytest
 
 import gymnasium as gym
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
 
 def test_frozenlake_4x4():
@@ -11,10 +11,10 @@ def test_frozenlake_4x4():
     env.reset()
 
     # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
-    env = NaiveSoloMCTSGymEnvWrapper(env)
+    env = DeepCopyMCTSGymEnvWrapper(env)
 
     # 2. create the agent
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=False,
         render_tree_after_step=True,
@@ -39,9 +39,9 @@ def test_cartpole():
     env = gym.make("CartPole-v1")
     env.reset()
 
-    env = NaiveSoloMCTSGymEnvWrapper(env)
+    env = DeepCopyMCTSGymEnvWrapper(env)
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         number_of_simulations_per_step=50,
         clear_mcts_tree_after_step=True,
@@ -64,5 +64,5 @@ def test_mountain_car_continuous():
 
     with pytest.raises(ValueError):
         # continuous action spaces are not supported
-        env = NaiveSoloMCTSGymEnvWrapper(env)
+        env = DeepCopyMCTSGymEnvWrapper(env)
 

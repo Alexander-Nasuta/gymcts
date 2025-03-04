@@ -7,30 +7,43 @@ import gymnasium as gym
 from gymnasium.core import WrapperActType, WrapperObsType
 from gymnasium.wrappers import RecordEpisodeStatistics
 
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
+from gymcts.gymcts_env_abc import GymctsABC
 
 from gymcts.logger import log
 
 
-class DeterministicSoloMCTSGymEnvWrapper(SoloMCTSGymEnv, gym.Wrapper):
-    _terminal_flag: bool = False
+class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
+
+
+    _terminal_flag:bool = False
     _last_reward: SupportsFloat = 0
     _step_tuple: tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]] = None
 
     _action_mask_fn: Callable[[gym.Env], np.ndarray] | None = None
 
-    def __init__(
-            self,
-            env,
-            action_mask_fn: str | Callable[[gym.Env], np.ndarray] | None = None,
-            buffer_length: int = 100,
-    ):
+    def is_terminal(self) -> bool:
+        return self._terminal_flag
+
+    def load_state(self, state: Any) -> None:
+        msg = """
+        The NaiveSoloMCTSGymEnvWrapper uses deepcopies of the entire env as the state.
+        The loading of the state is done by replacing the env with the 'state' (the copy provided my 'get_state').
+        'self' in a method cannot be replaced with another object (as far as i know). Therefore the copy is done by
+        MCTSaAgent here.
+        """
+        raise NotImplementedError(msg)
+
+    def __init__(self,
+                 env,
+                 action_mask_fn: str | Callable[[gym.Env], np.ndarray] | None = None,
+                 buffer_length: int = 100,
+                 record_video: bool = False,
+                 ):
         # wrap with RecordEpisodeStatistics if it is not already wrapped
         env = RecordEpisodeStatistics(env, buffer_length=buffer_length)
 
         gym.Wrapper.__init__(self, env)
-
-        self._wrapper_action_history = []
+        # super().__init__(env)
 
         # assert that the action space is discrete
         if not isinstance(env.action_space, gym.spaces.Discrete):
@@ -47,19 +60,15 @@ class DeterministicSoloMCTSGymEnvWrapper(SoloMCTSGymEnv, gym.Wrapper):
             else:
                 self._action_mask_fn = action_mask_fn
 
-    def load_state(self, state: list[int]) -> None:
-        self.env.reset()
-        self._wrapper_action_history = []
+    def get_state(self) -> Any:
+        log.debug("getting state")
+        original_state = self
+        copied_state = copy.deepcopy(self)
 
-        for action in state:
-            self.env.step(action)
-            self._wrapper_action_history.append(action)
+        log.debug(f"original state memory location: {hex(id(original_state))}")
+        log.debug(f"copied memory location: {hex(id(copied_state))}")
 
-    def is_terminal(self) -> bool:
-        if not len(self.get_valid_actions()):
-            return True
-        else:
-            return self._terminal_flag
+        return copied_state
 
     def action_masks(self) -> np.ndarray | None:
         return self._action_mask_fn(self.env) if self._action_mask_fn is not None else None
@@ -70,6 +79,18 @@ class DeterministicSoloMCTSGymEnvWrapper(SoloMCTSGymEnv, gym.Wrapper):
             return list(range(action_space.n))
         else:
             return [i for i, mask in enumerate(self.action_masks()) if mask]
+
+    def step(
+            self, action: WrapperActType
+    ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        step_tuple = self.env.step(action)
+
+        obs, reward, terminated, truncated, info = step_tuple
+        self._terminal_flag = terminated or truncated
+        self._step_tuple = step_tuple
+
+        return step_tuple
+
 
     def rollout(self) -> float:
         log.debug("performing rollout")
@@ -87,21 +108,7 @@ class DeterministicSoloMCTSGymEnvWrapper(SoloMCTSGymEnv, gym.Wrapper):
             # print(f"Valid actions: {self.get_valid_actions()}, selected action: {action}")
             _obs, _reward, is_terminal_state, _truncated, info = self.step(action)
 
+
         episode_return = info["episode"]["r"]
         log.debug(f"Rollout return: {episode_return}")
         return episode_return
-
-    def get_state(self) -> list[int]:
-        return self._wrapper_action_history.copy()
-
-    def step(
-            self, action: WrapperActType
-    ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
-        step_tuple = self.env.step(action)
-        self._wrapper_action_history.append(action)
-        obs, reward, terminated, truncated, info = step_tuple
-
-        self._terminal_flag = terminated or truncated
-        self._step_tuple = step_tuple
-
-        return step_tuple

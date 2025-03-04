@@ -7,13 +7,13 @@ import gymnasium as gym
 from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
 from jsp_instance_utils.instances import ft06, ft06_makespan
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_env_abc import GymctsABC
 
 from gymcts.logger import log
 
 
-class GraphJspGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
+class GraphJspGYMCTSWrapper(GymctsABC, gym.Wrapper):
 
     def __init__(self, env: DisjunctiveGraphJspEnv):
         gym.Wrapper.__init__(self, env)
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     env = GraphJspGYMCTSWrapper(env)
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=True,
         render_tree_after_step=True,

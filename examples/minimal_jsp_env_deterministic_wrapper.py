@@ -6,9 +6,9 @@ from gymnasium.spaces import Box, Discrete
 from jsp_instance_utils.instances import ft06, ft06_makespan
 from jsp_vis.console import gantt_chart_console
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_action_history_wrapper import ActionHistoryMCTSGymEnvWrapper
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 from gymnasium.wrappers import TransformReward, NormalizeReward
 from gymcts.logger import log
 
@@ -349,12 +349,12 @@ if __name__ == '__main__':
         return env.unwrapped.get_legal_action_mask()
 
 
-    env = DeterministicSoloMCTSGymEnvWrapper(
+    env = ActionHistoryMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=False,
         render_tree_after_step=True,

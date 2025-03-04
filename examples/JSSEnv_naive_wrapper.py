@@ -1,21 +1,12 @@
-from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
-from jsp_instance_utils.instances import ft06, ft06_makespan
 from jsp_vis.console import gantt_chart_console
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_deterministic_wrapper import DeterministicSoloMCTSGymEnvWrapper
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 from gymnasium.wrappers import TransformReward, NormalizeReward
 from gymcts.logger import log
 
 import gymnasium as gym
-import numpy as np
-import random
-
-from gymnasium.core import WrapperActType, WrapperObsType
-from gymnasium.wrappers import RecordEpisodeStatistics
-from typing import TypeVar, Any, SupportsFloat, Callable
+from typing import Any
 
 import bisect
 import datetime
@@ -515,12 +506,12 @@ if __name__ == '__main__':
         return env.unwrapped.legal_actions
 
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=False,
         render_tree_after_step=True,

@@ -5,7 +5,7 @@ import gymnasium as gym
 TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
 
 
-class SoloMCTSGymEnv(ABC, gym.Env):
+class GymctsABC(ABC, gym.Env):
 
     @abstractmethod
     def get_state(self) -> Any:

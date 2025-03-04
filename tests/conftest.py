@@ -38,7 +38,7 @@ def graph_matrix_env_naive_wrapper_singe_job_jsp_instance(single_job_jsp_instanc
 
 
     from graph_matrix_jsp_env.disjunctive_jsp_env import DisjunctiveGraphJspEnv
-    from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+    from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
     env = DisjunctiveGraphJspEnv(
         jsp_instance=single_job_jsp_instance,
@@ -49,7 +49,7 @@ def graph_matrix_env_naive_wrapper_singe_job_jsp_instance(single_job_jsp_instanc
 
         return env.unwrapped.valid_action_mask()
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )
@@ -62,7 +62,7 @@ def graph_matrix_env_naive_wrapper_two_job_jsp_instance(two_job_jsp_instance):
 
 
     from graph_matrix_jsp_env.disjunctive_jsp_env import DisjunctiveGraphJspEnv
-    from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+    from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
     env = DisjunctiveGraphJspEnv(jsp_instance=two_job_jsp_instance)
     env.reset()
@@ -71,7 +71,7 @@ def graph_matrix_env_naive_wrapper_two_job_jsp_instance(two_job_jsp_instance):
 
         return env.unwrapped.valid_action_mask()
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )

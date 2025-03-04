@@ -1,29 +1,26 @@
 from jsp_instance_utils.instances import ft06, ft06_makespan
-from sympy.physics.units import action
 
-from gymcts.gymcts_agent import SoloMCTSAgent
+from gymcts.gymcts_agent import GymctsAgent
 
 
 def test_solution_quality_small_instance(graph_matrix_env_naive_wrapper_two_job_jsp_instance):
     env = graph_matrix_env_naive_wrapper_two_job_jsp_instance
 
-    agent = SoloMCTSAgent(env=env)
+    agent = GymctsAgent(env=env)
 
-    actions = agent.solve(num_simulations_per_step=100) # enough to do a full search
+    actions = agent.solve(num_simulations_per_step=100)  # enough to do a full search
     for a in actions:
         obs, rew, term, trun, info = env.step(a)
-
 
     assert env.unwrapped.get_makespan() == 40
 
 
 def test_solution_quality_ft06_with_():
-
     import gymnasium as gym
     import numpy as np
 
     from graph_matrix_jsp_env.disjunctive_jsp_env import DisjunctiveGraphJspEnv
-    from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+    from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
     env = DisjunctiveGraphJspEnv(
         jsp_instance=ft06,
@@ -35,12 +32,12 @@ def test_solution_quality_ft06_with_():
     def mask_fn(env: gym.Env) -> np.ndarray:
         return env.unwrapped.valid_action_mask()
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
         action_mask_fn=mask_fn
     )
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         number_of_simulations_per_step=200,
         clear_mcts_tree_after_step=False,
@@ -53,9 +50,3 @@ def test_solution_quality_ft06_with_():
 
     assert term
     assert env.unwrapped.get_makespan() <= ft06_makespan * 1.5
-
-
-
-
-
-

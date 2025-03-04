@@ -3,27 +3,27 @@ import gymnasium as gym
 
 from typing import TypeVar, Any, SupportsFloat, Callable
 
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
-from gymcts.gymcts_node import SoloMCTSNode
+from gymcts.gymcts_env_abc import GymctsABC
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
+from gymcts.gymcts_node import GymctsNode
 
 from gymcts.logger import log
 
 TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
 
 
-class SoloMCTSAgent:
+class GymctsAgent:
     render_tree_after_step: bool = False
     render_tree_max_depth: int = 2
     exclude_unvisited_nodes_from_render: bool = False
     number_of_simulations_per_step: int = 25
 
-    env: SoloMCTSGymEnv
-    search_root_node: SoloMCTSNode  # NOTE: this is not the same as the root of the tree!
+    env: GymctsABC
+    search_root_node: GymctsNode  # NOTE: this is not the same as the root of the tree!
     clear_mcts_tree_after_step: bool
 
     def __init__(self,
-                 env: SoloMCTSGymEnv,
+                 env: GymctsABC,
                  clear_mcts_tree_after_step: bool = True,
                  render_tree_after_step: bool = False,
                  render_tree_max_depth: int = 2,
@@ -43,13 +43,13 @@ class SoloMCTSAgent:
         self.env = env
         self.clear_mcts_tree_after_step = clear_mcts_tree_after_step
 
-        self.search_root_node = SoloMCTSNode(
+        self.search_root_node = GymctsNode(
             action=None,
             parent=None,
             env_reference=env,
         )
 
-    def navigate_to_leaf(self, from_node: SoloMCTSNode) -> SoloMCTSNode:
+    def navigate_to_leaf(self, from_node: GymctsNode) -> GymctsNode:
         log.debug(f"Navigate to leaf. from_node: {from_node}")
         if from_node.terminal:
             log.debug("Node is terminal. Returning from_node")
@@ -66,7 +66,7 @@ class SoloMCTSAgent:
         log.debug(f"Selected leaf node: {temp_node}")
         return temp_node
 
-    def expand_node(self, node: SoloMCTSNode) -> None:
+    def expand_node(self, node: GymctsNode) -> None:
         log.debug(f"expanding node: {node}")
         # EXPANSION STRATEGY
         # expand all children
@@ -78,7 +78,7 @@ class SoloMCTSAgent:
             self._load_state(node)
 
             obs, reward, terminal, truncated, _ = self.env.step(action)
-            child_dict[action] = SoloMCTSNode(
+            child_dict[action] = GymctsNode(
                 action=action,
                 parent=node,
                 env_reference=self.env,
@@ -110,14 +110,14 @@ class SoloMCTSAgent:
         # restore state of current node
         return action_list
 
-    def _load_state(self, node: SoloMCTSNode) -> None:
-        if isinstance(self.env, NaiveSoloMCTSGymEnvWrapper):
+    def _load_state(self, node: GymctsNode) -> None:
+        if isinstance(self.env, DeepCopyMCTSGymEnvWrapper):
             self.env = copy.deepcopy(node.state)
         else:
             self.env.load_state(node.state)
 
-    def perform_mcts_step(self, search_start_node: SoloMCTSNode = None, num_simulations: int = None,
-                          render_tree_after_step: bool = None) -> tuple[int, SoloMCTSNode]:
+    def perform_mcts_step(self, search_start_node: GymctsNode = None, num_simulations: int = None,
+                          render_tree_after_step: bool = None) -> tuple[int, GymctsNode]:
 
         if render_tree_after_step is None:
             render_tree_after_step = self.render_tree_after_step
@@ -149,7 +149,7 @@ class SoloMCTSAgent:
 
         return action, next_node
 
-    def vanilla_mcts_search(self, search_start_node: SoloMCTSNode = None, num_simulations=10) -> int:
+    def vanilla_mcts_search(self, search_start_node: GymctsNode = None, num_simulations=10) -> int:
         log.debug(f"performing one MCTS search step with {num_simulations} simulations")
         if search_start_node is None:
             search_start_node = self.search_root_node
@@ -178,7 +178,7 @@ class SoloMCTSAgent:
 
         return search_start_node.get_best_action()
 
-    def show_mcts_tree(self, start_node: SoloMCTSNode = None, tree_max_depth: int = None) -> None:
+    def show_mcts_tree(self, start_node: GymctsNode = None, tree_max_depth: int = None) -> None:
 
         if start_node is None:
             start_node = self.search_root_node
@@ -193,7 +193,7 @@ class SoloMCTSAgent:
     def show_mcts_tree_from_root(self, tree_max_depth: int = None) -> None:
         self.show_mcts_tree(start_node=self.search_root_node.get_root(), tree_max_depth=tree_max_depth)
 
-    def backpropagation(self, node: SoloMCTSNode, episode_return: float) -> None:
+    def backpropagation(self, node: GymctsNode, episode_return: float) -> None:
         log.debug(f"performing backpropagation from leaf node: {node}")
         while not node.is_root():
             # node.mean_value = ((node.mean_value * node.visit_count) + episode_return) / (node.visit_count + 1)
@@ -209,7 +209,7 @@ class SoloMCTSAgent:
         node.max_value = max(node.max_value, episode_return)
         node.min_value = min(node.min_value, episode_return)
 
-    def _generate_mcts_tree(self, start_node: SoloMCTSNode = None, prefix: str = None, depth: int = None) -> list[str]:
+    def _generate_mcts_tree(self, start_node: GymctsNode = None, prefix: str = None, depth: int = None) -> list[str]:
 
         if prefix is None:
             prefix = ""

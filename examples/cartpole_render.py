@@ -1,21 +1,21 @@
 import gymnasium as gym
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
 if __name__ == '__main__':
     # Create the environment and wrap it with RecordVideo
     env = gym.make("CartPole-v1", render_mode="rgb_array")
     env = gym.wrappers.RecordVideo(env, video_folder="./videos", episode_trigger=lambda episode_id: True)
 
-    env = NaiveSoloMCTSGymEnvWrapper(
+    env = DeepCopyMCTSGymEnvWrapper(
         env,
     )
 
     # Reset the environment
     env.reset(seed=42)
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         number_of_simulations_per_step=50,
         clear_mcts_tree_after_step=True,

@@ -1,7 +1,7 @@
 import gymnasium as gym
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_naive_wrapper import NaiveSoloMCTSGymEnvWrapper
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
 if __name__ == '__main__':
 
@@ -11,10 +11,10 @@ if __name__ == '__main__':
 
 
     # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
-    env = NaiveSoloMCTSGymEnvWrapper(env)
+    env = DeepCopyMCTSGymEnvWrapper(env)
 
     # 2. create the agent
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         number_of_simulations_per_step=50,
         clear_mcts_tree_after_step=True,
