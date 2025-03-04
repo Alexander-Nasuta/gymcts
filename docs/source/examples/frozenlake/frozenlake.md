@@ -4,7 +4,7 @@ this is a gallery.
 sdf
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 3
 
 frozenlake_4x4.ipynb
 frozenlake_4x4_deterministic.ipynb

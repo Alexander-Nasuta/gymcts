@@ -4,7 +4,7 @@ this is a gallery.
 sdf
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 3
 
 cartpole.ipynb
 ```
