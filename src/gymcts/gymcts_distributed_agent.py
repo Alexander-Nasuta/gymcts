@@ -118,6 +118,7 @@ class DistributedGymctsAgent:
                  render_tree_after_step: bool = False,
                  render_tree_max_depth: int = 2,
                  num_parallel: int = 4,
+                 clear_mcts_tree_after_step: bool = False,
                  number_of_simulations_per_step: int = 25,
                  exclude_unvisited_nodes_from_render: bool = False
                  ):
@@ -134,6 +135,7 @@ class DistributedGymctsAgent:
         self.number_of_simulations_per_step = number_of_simulations_per_step
 
         self.env = env
+        self.clear_mcts_tree_after_step = clear_mcts_tree_after_step
 
         self.search_root_node = GymctsNode(
             action=None,
@@ -206,6 +208,8 @@ class DistributedGymctsAgent:
                 ready_node = ray.get(ready_node_ref)
 
                 # merge the tree
+                if not self.clear_mcts_tree_after_step:
+                    self.backpropagation(search_start_node, ready_node.mean_value, ready_node.visit_count)
                 search_start_node = merge_nodes(search_start_node, ready_node)
 
         action = search_start_node.get_best_action()
@@ -217,21 +221,33 @@ class DistributedGymctsAgent:
                 tree_max_depth=self.render_tree_max_depth
             )
 
-
-        # to clear memory we need to remove all nodes except the current node
-        # this is done by setting the root node to the current node
-        # and setting the parent of the current node to None
-        # we also need to reset the children of the current node
-        # this is done by calling the reset method
-        #
-        # in a distributed setting we need we delete all previous nodes
-        # this is because backpropagation merging trees is already computationally expensive
-        # and backpropagating the whole tree would be even more expensive
-        next_node.reset()
+        if self.clear_mcts_tree_after_step:
+            # to clear memory we need to remove all nodes except the current node
+            # this is done by setting the root node to the current node
+            # and setting the parent of the current node to None
+            # we also need to reset the children of the current node
+            # this is done by calling the reset method
+            next_node.reset()
 
         self.search_root_node = next_node
 
         return action, next_node
+
+    def backpropagation(self, node: GymctsNode, average_episode_return: float, num_episodes: int) -> None:
+        log.debug(f"performing backpropagation from leaf node: {node}")
+        while not node.is_root():
+            node.mean_value = (node.mean_value * node.visit_count + average_episode_return * num_episodes) / (
+                        node.visit_count + num_episodes)
+            node.visit_count += num_episodes
+            node.max_value = max(node.max_value, average_episode_return)
+            node.min_value = min(node.min_value, average_episode_return)
+            node = node.parent
+        # also update root node
+        node.mean_value = (node.mean_value * node.visit_count + average_episode_return * num_episodes) / (
+                    node.visit_count + num_episodes)
+        node.visit_count += num_episodes
+        node.max_value = max(node.max_value, average_episode_return)
+        node.min_value = min(node.min_value, average_episode_return)
 
     def show_mcts_tree(self, start_node: GymctsNode = None, tree_max_depth: int = None) -> None:
 
@@ -268,7 +284,7 @@ if __name__ == '__main__':
     agent1 = DistributedGymctsAgent(
         env=env,
         render_tree_after_step=True,
-        number_of_simulations_per_step=1000,
+        number_of_simulations_per_step=10,
         exclude_unvisited_nodes_from_render=True,
         num_parallel=1,
     )
@@ -277,5 +293,7 @@ if __name__ == '__main__':
     start_time = time.perf_counter()
     actions = agent1.solve()
     end_time = time.perf_counter()
+
+    agent1.show_mcts_tree_from_root()
 
     print(f"solution time pro action: {end_time - start_time}/{len(actions)}")

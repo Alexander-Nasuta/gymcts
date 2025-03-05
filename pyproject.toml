@@ -32,7 +32,7 @@ examples = [
 ]
 dev = [
     "jsp-instance-utils",
-    "graph-matrix-jsp-env",
+    "graph-matrix-jsp-env>=0.3.0",
     "graph-jsp-env",
     "JSSEnv",
 

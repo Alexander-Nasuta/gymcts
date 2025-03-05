@@ -1,4 +1,5 @@
 import copy
+import random
 import gymnasium as gym
 
 from typing import TypeVar, Any, SupportsFloat, Callable
@@ -63,7 +64,10 @@ class GymctsAgent:
         # NAVIGATION STRATEGY
         # select child with highest UCB score
         while not temp_node.is_leaf():
-            temp_node = max(temp_node.children.values(), key=lambda child: child.ucb_score())
+            children = list(temp_node.children.values())
+            max_ucb_score = max(child.ucb_score() for child in children)
+            best_children = [child for child in children if child.ucb_score() == max_ucb_score]
+            temp_node = random.choice(best_children)
         log.debug(f"Selected leaf node: {temp_node}")
         return temp_node
 

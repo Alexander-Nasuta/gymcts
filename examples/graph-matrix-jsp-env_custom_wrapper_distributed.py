@@ -15,7 +15,7 @@ import numpy as np
 class GraphMatrixJspGYMCTSWrapper(GymctsABC, gym.Wrapper):
 
     def __init__(self, env: DisjunctiveGraphJspEnv):
-        gym.Wrapper.__init__(self, env)
+        super().__init__(env)
 
     def load_state(self, state: np.ndarray) -> None:
         self.env.unwrapped.load_state(state)
@@ -24,13 +24,13 @@ class GraphMatrixJspGYMCTSWrapper(GymctsABC, gym.Wrapper):
         return self.env.unwrapped.is_terminal_state()
 
     def get_valid_actions(self) -> list[int]:
-        return self.env.unwrapped.valid_action_mask()
+        return self.env.unwrapped.valid_action_list()
 
     def rollout(self) -> float:
-        return self.env.unwrapped.random_rollout()
+        return self.env.unwrapped.greedy_rollout()
 
     def get_state(self) -> np.ndarray:
-        return env.unwrapped.get_state
+        return self.env.unwrapped.get_state()
 
 
 if __name__ == '__main__':
@@ -38,31 +38,22 @@ if __name__ == '__main__':
 
     env = DisjunctiveGraphJspEnv(
         jsp_instance=ft06,
-        reward_function="makespan",
+        c_lb=ft06_makespan,
+        reward_function="mcts", # this reward is in range [-inf, 1]
     )
-    # map reward to [1, -inf]
-    # ideally you want the reward to be in the range of [-1, 1] for the UBC score
-    env = TransformReward(env, lambda r: r / ft06_makespan + 2 if r != 0 else 0.0)
+
     env.reset()
 
-
-    def mask_fn(env: gym.Env) -> np.ndarray:
-        # Do whatever you'd like in this function to return the action mask
-        # for the current env. In this example, we assume the env has a
-        # helpful method we can rely on.
-        return env.unwrapped.valid_action_mask()
-
-
-    env = DeepCopyMCTSGymEnvWrapper(
-        env,
-        action_mask_fn=mask_fn
+    env = GraphMatrixJspGYMCTSWrapper(
+        env
     )
 
     agent = DistributedGymctsAgent(
         env=env,
         render_tree_after_step=True,
+        clear_mcts_tree_after_step=False,
         exclude_unvisited_nodes_from_render=True,
-        number_of_simulations_per_step=125,
+        number_of_simulations_per_step=2,
         num_parallel=4,
     )
 
@@ -74,6 +65,10 @@ if __name__ == '__main__':
 
     for a in actions:
         obs, rew, term, trun, info = env.step(a)
+
+    agent.show_mcts_tree_from_root(
+        tree_max_depth=None
+    )
 
     env.render()
     makespan = env.unwrapped.get_makespan()
