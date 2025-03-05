@@ -21,10 +21,15 @@ TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
 @ray.remote
 def mcts_lookahead(
         gymcts_start_node: GymctsNode,
-        env: GymctsABC,
+        ray_env_ref: GymctsABC,
         num_simulations: int) -> GymctsNode:
+    print(f"type of gymcts_start_node: {type(gymcts_start_node)}")
+    print(f"type of ray_env_ref: {type(ray_env_ref)}")
+    env_copy = copy.deepcopy(ray_env_ref)
+    gymcts_start_node = copy.deepcopy(gymcts_start_node)
+
     agent = GymctsAgent(
-        env=env,
+        env=env_copy,
         clear_mcts_tree_after_step=False,
         number_of_simulations_per_step=num_simulations,
     )
@@ -35,6 +40,18 @@ def mcts_lookahead(
         num_simulations=num_simulations,
     )
     return agent.search_root_node
+
+
+@ray.remote(num_cpus=1)
+def merge_trees(
+        gymcts_tree_merge_node1: GymctsNode,
+        gymcts_tree_merge_node2: GymctsNode) -> GymctsNode:
+    resulting_tree_node = merge_nodes(
+        gymcts_tree_merge_node1,
+        gymcts_tree_merge_node2
+    )
+    # update gymcts_tree_merge_node1 with the resulting tree
+    return resulting_tree_node
 
 
 def merge_nodes(gymcts_node1, gymcts_node2, perform_state_equality_check=False):
@@ -88,7 +105,7 @@ def merge_nodes(gymcts_node1, gymcts_node2, perform_state_equality_check=False):
 
     visit_count = gymcts_node1.visit_count + gymcts_node2.visit_count
     mean_value = (
-                             gymcts_node1.mean_value * gymcts_node1.visit_count + gymcts_node2.mean_value * gymcts_node2.visit_count) / visit_count
+                         gymcts_node1.mean_value * gymcts_node1.visit_count + gymcts_node2.mean_value * gymcts_node2.visit_count) / visit_count
     max_value = max(gymcts_node1.max_value, gymcts_node2.max_value)
     min_value = min(gymcts_node1.min_value, gymcts_node2.min_value)
 
@@ -108,8 +125,8 @@ class DistributedGymctsAgent:
     number_of_simulations_per_step: int = 25
     num_parallel: int = 4
 
-    env: GymctsABC
-    search_root_node: GymctsNode  # NOTE: this is not the same as the root of the tree!
+    env_ref: ObjectRef[GymctsABC]
+    search_root_node_ref: ObjectRef[GymctsNode]  # NOTE: this is not the same as the root of the tree!
     clear_mcts_tree_after_step: bool
 
     def __init__(self,
@@ -133,14 +150,16 @@ class DistributedGymctsAgent:
 
         self.number_of_simulations_per_step = number_of_simulations_per_step
 
-        self.env = env
+        self.env_ref = ray.put(
+            env
+        )
         self.clear_mcts_tree_after_step = clear_mcts_tree_after_step
 
-        self.search_root_node = GymctsNode(
+        self.search_root_node_ref = ray.put(GymctsNode(
             action=None,
             parent=None,
             env_reference=env,
-        )
+        ))
 
     def solve(self, num_simulations_per_step: int = None, render_tree_after_step: bool = None) -> list[int]:
 
@@ -149,16 +168,18 @@ class DistributedGymctsAgent:
         if render_tree_after_step is None:
             render_tree_after_step = self.render_tree_after_step
 
-        log.debug(f"Solving from root node: {self.search_root_node}")
+        log.debug(f"Solving from root node: {self.search_root_node_ref}")
 
-        current_node = self.search_root_node
+        current_node_ref = self.search_root_node_ref
 
         action_list = []
 
-        while not current_node.terminal:
-            next_action, current_node = self.perform_mcts_step(num_simulations=num_simulations_per_step,
-                                                               render_tree_after_step=render_tree_after_step)
-            log.info(f"selected action {next_action} after {self.num_parallel} x {num_simulations_per_step} simulations.")
+        while not ray.get(current_node_ref).terminal:
+            next_action, current_node_ref = self.perform_mcts_step(num_simulations=num_simulations_per_step,
+                                                                   render_tree_after_step=render_tree_after_step)
+
+            log.info(
+                f"selected action {next_action} after {self.num_parallel} x {num_simulations_per_step} simulations.")
             action_list.append(next_action)
             log.info(f"current action list: {action_list}")
 
@@ -166,8 +187,9 @@ class DistributedGymctsAgent:
         # restore state of current node
         return action_list
 
-    def perform_mcts_step(self, search_start_node: GymctsNode = None, num_simulations: int = None,
-                          render_tree_after_step: bool = None, num_parallel: int = None) -> tuple[int, GymctsNode]:
+    def perform_mcts_step(self, search_start_node_ref: GymctsNode = None, num_simulations: int = None,
+                          render_tree_after_step: bool = None, num_parallel: int = None) -> tuple[
+        int, ObjectRef[GymctsNode]]:
 
         if render_tree_after_step is None:
             render_tree_after_step = self.render_tree_after_step
@@ -178,8 +200,8 @@ class DistributedGymctsAgent:
         if num_simulations is None:
             num_simulations = self.number_of_simulations_per_step
 
-        if search_start_node is None:
-            search_start_node = self.search_root_node
+        if search_start_node_ref is None:
+            search_start_node_ref = self.search_root_node_ref
 
         if num_parallel is None:
             num_parallel = self.num_parallel
@@ -189,12 +211,13 @@ class DistributedGymctsAgent:
         #   num_simulations=num_simulations,
         # )
         # next_node = search_start_node.children[action]
-
+        print(self.env_ref)
+        print(type(self.env_ref))
         mcts_interation_futures = [
             mcts_lookahead.remote(
-                copy.deepcopy(search_start_node),
-                copy.deepcopy(self.env),
-                num_simulations=num_simulations
+                search_start_node_ref,
+                self.env_ref,
+                num_simulations
             )
             for _ in range(num_parallel)
         ]
@@ -202,12 +225,13 @@ class DistributedGymctsAgent:
         while mcts_interation_futures:
             ready_gymcts_nodes, mcts_interation_futures = ray.wait(mcts_interation_futures)
             for ready_node_ref in ready_gymcts_nodes:
-                ready_node = ray.get(ready_node_ref)
-
                 # merge the tree
-                search_start_node = merge_nodes(search_start_node, ready_node)
+                search_start_node_ref = merge_trees.remote(
+                    search_start_node_ref,
+                    ready_node_ref
+                )
 
-
+        search_start_node = ray.get(search_start_node_ref)
         action = search_start_node.get_best_action()
         next_node = search_start_node.children[action]
 
@@ -219,16 +243,15 @@ class DistributedGymctsAgent:
             # this is done by calling the reset method
             next_node.reset()
 
-        self.search_root_node = next_node
+        next_node_ref = ray.put(next_node)
 
-        return action, next_node
-
+        return action, next_node_ref
 
 
 if __name__ == '__main__':
     ray.init()
 
-    log.setLevel(20) # 10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CR
+    log.setLevel(20)  # 10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CR
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False)
     env.reset()
 
@@ -246,6 +269,7 @@ if __name__ == '__main__':
         num_parallel=4,
     )
     import time
+
     start_time = time.perf_counter()
     actions = agent1.solve()
     end_time = time.perf_counter()

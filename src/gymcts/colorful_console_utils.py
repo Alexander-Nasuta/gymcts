@@ -1,3 +1,5 @@
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -103,8 +105,7 @@ def wrap_with_color_codes(s: object, /, r: int | float, g: int | float, b: int |
            f"{CEND}"
 
 
-
-def wrap_evenly_spaced_color(s: str, n_of_item:int, n_classes:int, c_map="rainbow") -> str:
+def wrap_evenly_spaced_color(s: Any, n_of_item: int, n_classes: int, c_map="rainbow") -> str:
     if s is None or n_of_item is None or n_classes is None:
         return s
 
@@ -117,7 +118,7 @@ def wrap_evenly_spaced_color(s: str, n_of_item:int, n_classes:int, c_map="rainbo
     return f"{color_asni}{s}{CEND}"
 
 
-def wrap_with_color_scale(s: str, value: float, min_val:float, max_val:float, c_map=None) -> str:
+def wrap_with_color_scale(s: str, value: float, min_val: float, max_val: float, c_map=None) -> str:
     if s is None or min_val is None or max_val is None or min_val >= max_val:
         return s
 
