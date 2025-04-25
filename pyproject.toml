@@ -49,13 +49,16 @@ dev = [
     "myst-parser", # .md support for sphinx
     "sphinx-autobuild",
     #
+    "sphinx-copybutton", # for code copy buttons
     "furo", # cool theme
     "twine",
     "sphinx-copybutton", # for code copy buttons
     "nbsphinx", # for jupyter notebook support in sphinx
+    "pandoc",
 
     "jupytext", # converting .py examples to jupyter notebook jupytext --to notebook *.py
     "jupyter", # for jupyter notebook kernel
+    "typing_extensions>=4.12.0",
 ]
 
 [project.urls]
