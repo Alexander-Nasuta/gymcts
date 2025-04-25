@@ -1,5 +1,6 @@
 # Contributing
 
+
 If you want to check out the code and implement new features or fix bugs, you can set up the project as follows:
 
 ### Clone the Repository
@@ -8,11 +9,11 @@ clone the repository in your favorite code editor (for example PyCharm, VSCode, 
 
 using https:
 ```shell
-git clone https://github.com/Alexander-Nasuta/todo
+git clone https://github.com/Alexander-Nasuta/gymcts.git
 ```
 or by using the GitHub CLI:
 ```shell
-gh repo clone Alexander-Nasuta/todo
+gh repo clone Alexander-Nasuta/gymcts
 ```
 
 if you are using PyCharm, I recommend doing the following additional steps:
@@ -21,13 +22,10 @@ if you are using PyCharm, I recommend doing the following additional steps:
 - mark the `tests` folder as test root (by right-clicking on the folder and selecting `Mark Directory as` -> `Test Sources Root`)
 - mark the `resources` folder as resources root (by right-clicking on the folder and selecting `Mark Directory as` -> `Resources Root`)
 
-at the end your project structure should look like this:
-
-todo
 
 ### Create a Virtual Environment (optional)
 
-Most Developers use a virtual environment to manage the dependencies of their projects.
+Most Developers use a virtual environment to manage the dependencies of their projects. 
 I personally use `conda` for this purpose.
 
 When using `conda`, you can create a new environment with the name 'my-graph-jsp-env' following command:
@@ -56,8 +54,8 @@ pip install -r requirements_dev.txt
 pip install tox
 ```
 
-The testing package `tox` is not included in the `requirements_dev.txt` file, because it sometimes causes issues when
-using github actions.
+The testing package `tox` is not included in the `requirements_dev.txt` file, because it sometimes causes issues when 
+using github actions. 
 Github Actions uses an own tox environment (namely 'tox-gh-actions'), which can cause conflicts with the tox environment on your local machine.
 
 Reference: [Automated Testing in Python with pytest, tox, and GitHub Actions](https://www.youtube.com/watch?v=DhUpxWjOhME).
@@ -89,13 +87,7 @@ For testing with `tox` run the following command:
 tox
 ```
 
-Here is a screenshot of what the output might look like:
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/tox-screenshot.png)
-
-Tox will run the tests in a separate environment and will also check if the requirements are installed correctly.
-
-### Builing and Publishing the Project to PyPi
+### Builing and Publishing the Project to PyPi 
 
 In order to publish the project to PyPi, the project needs to be built and then uploaded to PyPi.
 
@@ -120,7 +112,7 @@ twine upload dist/**
 ```
 
 ### Documentation
-This project uses `sphinx` for generating the documentation.
+This project uses `sphinx` for generating the documentation. 
 It also uses a lot of sphinx extensions to make the documentation more readable and interactive.
 For example the extension `myst-parser` is used to enable markdown support in the documentation (instead of the usual .rst-files).
 It also uses the `sphinx-autobuild` extension to automatically rebuild the documentation when changes are made.
@@ -131,4 +123,3 @@ sphinx-autobuild ./docs/source/ ./docs/build/html/
 ```
 
 This project features most of the extensions featured in this Tutorial: [Document Your Scientific Project With Markdown, Sphinx, and Read the Docs | PyData Global 2021](https://www.youtube.com/watch?v=qRSb299awB0).
-

@@ -2,9 +2,9 @@
 
 A Monte Carlo Tree Search Implementation for Gymnasium-style Environments.
 
-- Github: [GYMCTS on Github](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv)
-- Pypi: [GYMCTS on PyPi](https://pypi.org/project/graph-matrix-jsp-env/)
-- Documentation: [GYMCTS Docs](https://graphmatrixjobshopenv.readthedocs.io/en/latest/)
+- Github: [GYMCTS on Github](https://github.com/Alexander-Nasuta/gymcts)
+- Pypi: [GYMCTS on PyPi](https://pypi.org/project/gymcts/)
+- Documentation: [GYMCTS Docs](https://gymcts.readthedocs.io/en/latest/)
 
 ## Description
 
@@ -48,10 +48,10 @@ env = NormalizeReward(env, gamma=0.99, epsilon=1e-8)
 ```python
 env = TransformReward(env, lambda r: r / n_steps_per_episode)
 ```
-### FrozenLake Example (NaiveSoloMCTSGymEnvWrapper)
+### FrozenLake Example (DeepCopyMCTSGymEnvWrapper)
 
 A minimal example of how to use the package with the FrozenLake environment and the NaiveSoloMCTSGymEnvWrapper is provided in the following code snippet below.
-The NaiveSoloMCTSGymEnvWrapper can be used with non-deterministic environments, such as the FrozenLake environment with slippery ice.
+The DeepCopyMCTSGymEnvWrapper can be used with non-deterministic environments, such as the FrozenLake environment with slippery ice.
 
 ```python
 import gymnasium as gym
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=True, render_mode="ansi")
     env.reset()
 
-    # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
+    # 1. wrap the environment with the deep copy wrapper or a custom gymcts wrapper
     env = DeepCopyMCTSGymEnvWrapper(env)
 
     # 2. create the agent
@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     # 5. print the solution
     # read the solution from the info provided by the RecordEpisodeStatistics wrapper 
-    # (that NaiveSoloMCTSGymEnvWrapper uses internally)
+    # (that DeepCopyMCTSGymEnvWrapper uses internally)
     episode_length = info["episode"]["l"]
     episode_return = info["episode"]["r"]
 
@@ -186,7 +186,7 @@ if __name__ == '__main__':
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="rgb_array")
     env.reset()
 
-    # 1. wrap the environment with the naive wrapper or a custom gymcts wrapper
+    # 1. wrap the environment with the deep copy wrapper or a custom gymcts wrapper
     env = DeepCopyMCTSGymEnvWrapper(env)
 
     # 2. create the agent
@@ -215,7 +215,7 @@ if __name__ == '__main__':
     env.close()
 
     # 5. print the solution
-    # read the solution from the info provided by the RecordEpisodeStatistics wrapper (that NaiveSoloMCTSGymEnvWrapper wraps internally)
+    # read the solution from the info provided by the RecordEpisodeStatistics wrapper (that DeepCopyMCTSGymEnvWrapper wraps internally)
     episode_length = info["episode"]["l"]
     episode_return = info["episode"]["r"]
 
@@ -368,7 +368,7 @@ if __name__ == '__main__':
     env = gym.make('FrozenLake-v1', desc=None, map_name="4x4", is_slippery=False, render_mode="ansi")
     env.reset()
 
-    # wrap the environment with the naive wrapper or a custom gymcts wrapper
+    # wrap the environment with the wrapper or a custom gymcts wrapper
     env = ActionHistoryMCTSGymEnvWrapper(env)
 
     # create the agent

@@ -83,7 +83,9 @@ agent.show_mcts_tree(
     start_node=agent.search_root_node,
 )
 ```
-![Visualisation Example](../_static/vis1.png)
+
+![](https://github.com/Alexander-Nasuta/gymcts/raw/master/resources/vis1.png)
+
 
 ```python
 log.info(f"MCTS Tree starting at the pre-final state of the environment (actions: {agent.search_root_node.parent.state})")
@@ -91,7 +93,9 @@ agent.show_mcts_tree(
 start_node=agent.search_root_node.parent,
 )
 ```
-![Visualisation Example](../_static/vis2.png)
+
+![](https://github.com/Alexander-Nasuta/gymcts/raw/master/resources/vis2.png)
+
 ```python
 log.info(f"MCTS Tree starting at the root state (actions: {agent.search_root_node.get_root().state})")
 agent.show_mcts_tree(
@@ -100,4 +104,5 @@ agent.show_mcts_tree(
     tree_max_depth=1
 )
 ```
-![Visualisation Example](../_static/vis3.png)
+
+![](https://github.com/Alexander-Nasuta/gymcts/raw/master/resources/vis3.png)
