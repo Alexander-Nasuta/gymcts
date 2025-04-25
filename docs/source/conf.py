@@ -58,3 +58,6 @@ autosectionlabel_maxdepth = 2
 
 # Exclude specific files
 autosectionlabel_exclude_files = ['README.md']
+
+nbsphinx_execute = 'never'
+
