@@ -106,6 +106,18 @@ def wrap_with_color_codes(s: object, /, r: int | float, g: int | float, b: int |
 
 
 def wrap_evenly_spaced_color(s: Any, n_of_item: int, n_classes: int, c_map="rainbow") -> str:
+    """
+    Wraps a string with a color scale (a matplotlib c_map) based on the n_of_item and n_classes.
+    This function is used to color code the available actions in the MCTS tree visualisation.
+    The children of the MCTS tree are colored based on their action for a clearer visualisation.
+
+    :param s: the string (or object) to be wrapped. objects are converted to string (using the __str__ function).
+    :param n_of_item: the index of the item to be colored. In a mcts tree, this is the (parent-)action of the node.
+    :param n_classes: the number of classes (or items) to be colored. In a mcts tree, this is the number of available actions.
+    :param c_map: the colormap to be used (default is 'rainbow').
+                  The colormap can be any matplotlib colormap, e.g. 'viridis', 'plasma', 'inferno', 'magma', 'cividis'.
+    :return: a string that contains the color-codes (prefix and suffix) and the string s in between.
+    """
     if s is None or n_of_item is None or n_classes is None:
         return s
 
@@ -119,6 +131,16 @@ def wrap_evenly_spaced_color(s: Any, n_of_item: int, n_classes: int, c_map="rain
 
 
 def wrap_with_color_scale(s: str, value: float, min_val: float, max_val: float, c_map=None) -> str:
+    """
+    Wraps a string with a color scale (a matplotlib c_map) based on the value, min_val, and max_val.
+
+    :param s: the string to be wrapped
+    :param value: the value to be mapped to a color
+    :param min_val: the minimum value of the scale
+    :param max_val: the maximum value of the scale
+    :param c_map: the colormap to be used (default is 'rainbow')
+    :return:
+    """
     if s is None or min_val is None or max_val is None or min_val >= max_val:
         return s
 

@@ -21,7 +21,7 @@ dependencies = [
     "gymnasium",
     "matplotlib<3.9",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 
 [project.optional-dependencies]

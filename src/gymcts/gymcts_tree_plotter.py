@@ -1,3 +1,5 @@
+from typing import Any, Generator
+
 from gymcts.gymcts_node import GymctsNode
 
 from gymcts.logger import log
@@ -9,7 +11,19 @@ def _generate_mcts_tree(
         depth: int = None,
         exclude_unvisited_nodes_from_render: bool = True,
         action_space_n: int = None
-) -> list[str]:
+) -> Generator[str, Any | None, None]:
+    """
+    Generates a tree representation of the MCTS tree starting from the given node.
+
+    This is a recursive function that generates a tree representation of the MCTS tree starting from the given node. The
+
+    :param start_node: the node to start from
+    :param prefix: used to format the tree
+    :param depth: used to limit the depth of the tree
+    :param exclude_unvisited_nodes_from_render: used to exclude unvisited nodes from the render
+    :param action_space_n: the number of actions in the action space
+    :return: a list of strings representing the tree
+    """
     if prefix is None:
         prefix = ""
     import gymcts.colorful_console_utils as ccu
@@ -70,6 +84,13 @@ def show_mcts_tree(
         tree_max_depth: int = None,
         action_space_n: int = None
 ) -> None:
+    """
+    Renders the MCTS tree starting from the given node.
+
+    :param start_node: the node to start from
+    :param tree_max_depth: the maximum depth of the tree to render
+    :param action_space_n: the number of actions in the action space
+    """
     print(start_node.__str__(colored=True, action_space_n=action_space_n))
     for line in _generate_mcts_tree(start_node=start_node, depth=tree_max_depth):
         print(line)

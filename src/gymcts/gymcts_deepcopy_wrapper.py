@@ -13,8 +13,15 @@ from gymcts.logger import log
 
 
 class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
+    """
+    A wrapper for gym environments that implements the GymctsABC interface.
+    It uses deepcopys as state representation.
+    Please note that this is not the most efficient way to implement the state representation.
+    It is supposed to be used to see if your use-case works well with the MCTS algorithm.
+    If it does, you can consider implementing all GymctsABC methods in a more efficient way.
+    """
 
-
+    # helper attributes for the wrapper
     _terminal_flag:bool = False
     _last_reward: SupportsFloat = 0
     _step_tuple: tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]] = None
@@ -22,9 +29,21 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
     _action_mask_fn: Callable[[gym.Env], np.ndarray] | None = None
 
     def is_terminal(self) -> bool:
+        """
+        Returns True if the environment is in a terminal state, False otherwise.
+
+        :return: True if the environment is in a terminal state, False otherwise.
+        """
         return self._terminal_flag
 
     def load_state(self, state: Any) -> None:
+        """
+        The load_state method is not implemented. The state is loaded by replacing the env with the 'state' (the copy
+        provided my 'get_state'). 'self' in a method cannot be replaced with another object (as far as i know).
+
+        :param state: a deepcopy of the environment
+        :return: None
+        """
         msg = """
         The NaiveSoloMCTSGymEnvWrapper uses deepcopies of the entire env as the state.
         The loading of the state is done by replacing the env with the 'state' (the copy provided my 'get_state').
@@ -39,6 +58,16 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
                  buffer_length: int = 100,
                  record_video: bool = False,
                  ):
+        """
+        The constructor of the wrapper. It wraps the environment with RecordEpisodeStatistics and checks if the action
+        space is discrete. It also checks if the action_mask_fn is a string or a callable. If it is a string, it tries to
+        find the method in the environment. If it is a callable, it assigns it to the _action_mask_fn attribute.
+
+        :param env: the environment to wrap
+        :param action_mask_fn:
+        :param buffer_length:
+        :param record_video:
+        """
         # wrap with RecordEpisodeStatistics if it is not already wrapped
         env = RecordEpisodeStatistics(env, buffer_length=buffer_length)
 
@@ -61,6 +90,10 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
                 self._action_mask_fn = action_mask_fn
 
     def get_state(self) -> Any:
+        """
+        Returns the current state of the environment as a deepcopy of the environment.
+        :return: a deepcopy of the environment
+        """
         log.debug("getting state")
         original_state = self
         copied_state = copy.deepcopy(self)
@@ -71,9 +104,19 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
         return copied_state
 
     def action_masks(self) -> np.ndarray | None:
+        """
+        Returns the action masks for the environment. If the action_mask_fn is not set, it returns None.
+        :return: the action masks for the environment
+        """
         return self._action_mask_fn(self.env) if self._action_mask_fn is not None else None
 
     def get_valid_actions(self) -> list[int]:
+        """
+        Returns a list of valid actions for the current state of the environment.
+        This used to obtain potential actions/subsequent sates for the MCTS tree.
+
+        :return: the list of valid actions
+        """
         if self._action_mask_fn is None:
             action_space: gym.spaces.Discrete = self.env.action_space  # Type hinting
             return list(range(action_space.n))
@@ -83,6 +126,14 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
     def step(
             self, action: WrapperActType
     ) -> tuple[WrapperObsType, SupportsFloat, bool, bool, dict[str, Any]]:
+        """
+        Performs a step in the environment.
+        This method is used to update the wrapper with the new state and the new action, to realize the terminal state
+        functionality.
+
+        :param action: action to perform in the environment
+        :return: the step tuple of the environment (obs, reward, terminated, truncated, info)
+        """
         step_tuple = self.env.step(action)
 
         obs, reward, terminated, truncated, info = step_tuple
@@ -93,6 +144,12 @@ class DeepCopyMCTSGymEnvWrapper(GymctsABC, gym.Wrapper):
 
 
     def rollout(self) -> float:
+        """
+        Performs a rollout from the current state of the environment and returns the return (sum of rewards) of the
+        rollout.
+
+        :return: the return of the rollout
+        """
         log.debug("performing rollout")
         # random rollout
         # perform random valid action util terminal

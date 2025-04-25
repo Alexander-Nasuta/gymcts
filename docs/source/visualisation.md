@@ -74,3 +74,30 @@ if __name__ == '__main__':
         tree_max_depth=1
     )
 ```
+
+The following code snippets show the visualisation of the MCTS tree at different stages of the solving process.
+
+```python
+log.info(f"MCTS Tree starting at the final state of the environment (actions: {agent.search_root_node.state})")
+agent.show_mcts_tree(
+    start_node=agent.search_root_node,
+)
+```
+![Visualisation Example](../_static/vis1.png)
+
+```python
+log.info(f"MCTS Tree starting at the pre-final state of the environment (actions: {agent.search_root_node.parent.state})")
+agent.show_mcts_tree(
+start_node=agent.search_root_node.parent,
+)
+```
+![Visualisation Example](../_static/vis2.png)
+```python
+log.info(f"MCTS Tree starting at the root state (actions: {agent.search_root_node.get_root().state})")
+agent.show_mcts_tree(
+    start_node=agent.search_root_node.get_root(),
+    # you can limit the depth of the tree to render to any number
+    tree_max_depth=1
+)
+```
+![Visualisation Example](../_static/vis3.png)

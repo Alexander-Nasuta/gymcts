@@ -32,18 +32,22 @@ The usage of a MCTS agent can roughly organised into the following steps:
 - Render the solution
 
 The GYMCTS package provides a two types of wrappers for Gymnasium-style environments:
-- `NaiveSoloMCTSGymEnvWrapper`: A wrapper that uses deepcopies of the environment to save a snapshot of the environment state for each node in the MCTS tree.
-- `DeterministicSoloMCTSGymEnvWrapper`: A wrapper that saves the action sequence that lead to the current state in the MCTS node.
+- `DeepCopyMCTSGymEnvWrapper`: A wrapper that uses deepcopies of the environment to save a snapshot of the environment state for each node in the MCTS tree.
+- `ActionHistoryMCTSGymEnvWrapper`: A wrapper that saves the action sequence that lead to the current state in the MCTS node.
 
-These wrappers can be used with the `SoloMCTSAgent` to solve the environment. 
-The wrapper implement methods that are required by the `SoloMCTSAgent` to interact with the environment.
+These wrappers can be used with the `GymctsAgent` to solve the environment. 
+The wrapper implement methods that are required by the `GymctsAgent` to interact with the environment.
 GYMCTS is designed to use a single environment instance and reconstructing the environment state form a state snapshot, when needed.
 
 NOTE: MCTS works best when the return of an episode is in the range of [-1, 1]. Please adjust the reward function of the environment accordingly (or change the ubc-scaling parameter of the MCTS agent).
 Adjusting the reward function of the environment is easily done with a [NormalizeReward](https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.NormalizeReward) or [TransformReward](https://gymnasium.farama.org/api/wrappers/reward_wrappers/#gymnasium.wrappers.TransformReward) Wrapper.
+```python
+env = NormalizeReward(env, gamma=0.99, epsilon=1e-8)
+```
 
-NormalizeReward(env, gamma=0.99, epsilon=1e-8)
-env = TransformReward(env, lambda r: r / 36)
+```python
+env = TransformReward(env, lambda r: r / n_steps_per_episode)
+```
 ### FrozenLake Example (NaiveSoloMCTSGymEnvWrapper)
 
 A minimal example of how to use the package with the FrozenLake environment and the NaiveSoloMCTSGymEnvWrapper is provided in the following code snippet below.
@@ -252,13 +256,13 @@ import gymnasium as gym
 from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
 from jsp_instance_utils.instances import ft06, ft06_makespan
 
-from gymcts.gymcts_agent import SoloMCTSAgent
-from gymcts.gymcts_gym_env import SoloMCTSGymEnv
+from gymcts.gymcts_agent import GymctsAgent
+from gymcts.gymcts_env_abc import GymctsABC
 
 from gymcts.logger import log
 
 
-class GraphJspGYMCTSWrapper(SoloMCTSGymEnv, gym.Wrapper):
+class GraphJspGYMCTSWrapper(GymctsABC, gym.Wrapper):
 
     def __init__(self, env: DisjunctiveGraphJspEnv):
         gym.Wrapper.__init__(self, env)
@@ -309,7 +313,7 @@ if __name__ == '__main__':
 
     env = GraphJspGYMCTSWrapper(env)
 
-    agent = SoloMCTSAgent(
+    agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=True,
         render_tree_after_step=True,
@@ -352,7 +356,6 @@ import gymnasium as gym
 
 from gymcts.gymcts_agent import GymctsAgent
 from gymcts.gymcts_action_history_wrapper import ActionHistoryMCTSGymEnvWrapper
-from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 
 from gymcts.logger import log
 
@@ -436,11 +439,11 @@ clone the repository in your favorite code editor (for example PyCharm, VSCode, 
 
 using https:
 ```shell
-git clone https://github.com/Alexander-Nasuta/todo
+git clone https://github.com/Alexander-Nasuta/gymcts.git
 ```
 or by using the GitHub CLI:
 ```shell
-gh repo clone Alexander-Nasuta/todo
+gh repo clone Alexander-Nasuta/gymcts
 ```
 
 if you are using PyCharm, I recommend doing the following additional steps:
@@ -449,9 +452,6 @@ if you are using PyCharm, I recommend doing the following additional steps:
 - mark the `tests` folder as test root (by right-clicking on the folder and selecting `Mark Directory as` -> `Test Sources Root`)
 - mark the `resources` folder as resources root (by right-clicking on the folder and selecting `Mark Directory as` -> `Resources Root`)
 
-at the end your project structure should look like this:
-
-todo
 
 ### Create a Virtual Environment (optional)
 
@@ -517,12 +517,6 @@ For testing with `tox` run the following command:
 tox
 ```
 
-Here is a screenshot of what the output might look like:
-
-![](https://github.com/Alexander-Nasuta/GraphMatrixJobShopEnv/raw/master/resources/tox-screenshot.png)
-
-Tox will run the tests in a separate environment and will also check if the requirements are installed correctly.
-
 ### Builing and Publishing the Project to PyPi 
 
 In order to publish the project to PyPi, the project needs to be built and then uploaded to PyPi.
@@ -559,7 +553,6 @@ sphinx-autobuild ./docs/source/ ./docs/build/html/
 ```
 
 This project features most of the extensions featured in this Tutorial: [Document Your Scientific Project With Markdown, Sphinx, and Read the Docs | PyData Global 2021](https://www.youtube.com/watch?v=qRSb299awB0).
-
 
 
 ## Contact

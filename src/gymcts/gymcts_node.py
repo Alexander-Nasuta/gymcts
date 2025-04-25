@@ -13,18 +13,32 @@ TGymctsNode = TypeVar("TGymctsNode", bound="GymctsNode")
 
 class GymctsNode:
     # static properties
-    best_action_weight: float = 0.05
-    ubc_c = 0.707
+    best_action_weight: float = 0.05 # weight for the best action
+    ubc_c = 0.707 # exploration coefficient
+
+
 
     # attributes
-    visit_count: int = 0
-    mean_value: float = 0
-    max_value: float = -float("inf")
-    min_value: float = +float("inf")
-    terminal: bool = False
-    state: Any
+    #
+    # Note these attributes are not static. Their defined here to give developers a hint what fields are available
+    # in the class. They are not static because they are not shared between instances of the class in scope of
+    # this library.
+    visit_count: int = 0 # number of times the node has been visited
+    mean_value: float = 0 # mean value of the node
+    max_value: float = -float("inf") # maximum value of the node
+    min_value: float = +float("inf") # minimum value of the node
+    terminal: bool = False # whether the node is terminal or not
+    state: Any = None # state of the node
 
     def __str__(self, colored=False, action_space_n=None) -> str:
+        """
+        Returns a string representation of the node. The string representation is used for visualisation purposes.
+        It is used for example in the mcts tree visualisation functionality.
+
+        :param colored: true if the string representation should be colored, false otherwise. (ture is used by the mcts tree visualisation)
+        :param action_space_n: the number of actions in the action space. This is used for coloring the action in the string representation.
+        :return: a potentially colored string representation of the node.
+        """
         if not colored:
 
             if not self.is_root():
@@ -72,22 +86,44 @@ class GymctsNode:
                 (f", {p}ubc{e}={colorful_value(self.ucb_score())})" if not self.is_root() else ")"))
 
     def traverse_nodes(self) -> Generator[TGymctsNode, None, None]:
+        """
+        Traverse the tree and yield all nodes in the tree.
+
+        :return: a generator that yields all nodes in the tree.
+        """
         yield self
         if self.children:
             for child in self.children.values():
                 yield from child.traverse_nodes()
 
     def get_root(self) -> TGymctsNode:
+        """
+        Returns the root node of the tree. The root node is the node that has no parent.
+
+        :return: the root node of the tree.
+        """
         if self.is_root():
             return self
         return self.parent.get_root()
 
     def max_tree_depth(self):
+        """
+        Returns the maximum depth of the tree. The depth of a node is the number of edges from
+        the node to the root node.
+
+        :return: the maximum depth of the tree.
+        """
         if self.is_leaf():
             return 0
         return 1 + max(child.max_tree_depth() for child in self.children.values())
 
     def n_children_recursively(self):
+        """
+        Returns the number of children of the node recursively. The number of children of a node is the number of
+        children of the node plus the number of children of all children of the node.
+
+        :return: the number of children of the node recursively.
+        """
         if self.is_leaf():
             return 0
         return len(self.children) + sum(child.n_children_recursively() for child in self.children.values())
@@ -97,6 +133,14 @@ class GymctsNode:
                  parent: TGymctsNode | None,
                  env_reference: GymctsABC,
                  ):
+        """
+        Initializes the node. The node is initialized with the state of the environment and the action that was taken to
+        reach the node. The node is also initialized with the parent node and the environment reference.
+
+        :param action: the action that was taken to reach the node. If the node is a root node, this parameter is None.
+        :param parent: the parent node of the node. If the node is a root node, this parameter is None.
+        :param env_reference: a reference to the environment. The environment is used to get the state of the node and the valid actions.
+        """
 
         # field depending on whether the node is a root node or not
         self.action: int | None
@@ -149,21 +193,49 @@ class GymctsNode:
             self.parent.reset()
 
     def is_root(self) -> bool:
+        """
+        Returns true if the node is a root node. A root node is a node that has no parent.
+
+        :return: true if the node is a root node, false otherwise.
+        """
         return self.parent is None
 
     def is_leaf(self) -> bool:
+        """
+        Returns true if the node is a leaf node. A leaf node is a node that has no children. A leaf node is a node that has no children.
+
+        :return: true if the node is a leaf node, false otherwise.
+        """
         return self.children is None or len(self.children) == 0
 
     def get_random_child(self) -> TGymctsNode:
+        """
+        Returns a random child of the node. A random child is a child that is selected randomly from the list of children.
+        :return:
+        """
         if self.is_leaf():
             raise ValueError("cannot get random child of leaf node")  # todo: maybe return self instead?
 
         return list(self.children.values())[random.randint(0, len(self.children) - 1)]
 
     def get_best_action(self) -> int:
+        """
+        Returns the best action of the node. The best action is the action that has the highest score.
+        The score is calculated using the get_score() method. The best action is the action that has the highest score.
+        The best action is the action that has the highest score.
+
+        :return: the best action of the node.
+        """
         return max(self.children.values(), key=lambda child: child.get_score()).action
 
     def get_score(self) -> float:  # todo: make it an attribute?
+        """
+        Returns the score of the node. The score is calculated using the mean value and the maximum value of the node.
+        The score is calculated using the formula: score = (1 - a) * mean_value + a * max_value
+        where a is the best action weight.
+
+        :return: the score of the node.
+        """
         # return self.mean_value
         assert 0 <= GymctsNode.best_action_weight <= 1
         a = GymctsNode.best_action_weight
@@ -173,6 +245,11 @@ class GymctsNode:
         return self.mean_value
 
     def get_max_value(self) -> float:
+        """
+        Returns the maximum value of the node. The maximum value is the maximum value of the node.
+
+        :return: the maximum value of the node.
+        """
         return self.max_value
 
     def ucb_score(self):
