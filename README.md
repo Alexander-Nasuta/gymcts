@@ -1,4 +1,9 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15283390.svg)](https://doi.org/10.5281/zenodo.15283390)
+![Python Badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat)
+[![PyPI version](https://img.shields.io/pypi/v/gymcts)](https://pypi.org/project/gymcts/)
+![License](https://img.shields.io/pypi/l/gymcts)
+[![Documentation Status](https://readthedocs.org/projects/gymcts/badge/?version=latest)](https://gymcts.readthedocs.io/en/latest/?badge=latest)
+
 # GYMCTS
 
 A Monte Carlo Tree Search Implementation for Gymnasium-style Environments.
