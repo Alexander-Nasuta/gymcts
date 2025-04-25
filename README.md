@@ -1,4 +1,5 @@
-# Graph Matrix Job Shop Env
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15283390.svg)](https://doi.org/10.5281/zenodo.15283390)
+# GYMCTS
 
 A Monte Carlo Tree Search Implementation for Gymnasium-style Environments.
 
