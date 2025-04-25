@@ -3,6 +3,7 @@
 A Monte Carlo Tree Search Implementation for Gymnasium-style Environments.
 
 - Github: [GYMCTS on Github](https://github.com/Alexander-Nasuta/gymcts)
+- GitLab: [GYMCTS on GitLab](https://git-ce.rwth-aachen.de/alexander.nasuta/gymcts)
 - Pypi: [GYMCTS on PyPi](https://pypi.org/project/gymcts/)
 - Documentation: [GYMCTS Docs](https://gymcts.readthedocs.io/en/latest/)
 
