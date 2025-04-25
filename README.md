@@ -1,7 +1,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15283390.svg)](https://doi.org/10.5281/zenodo.15283390)
-![Python Badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat)
+[![Python Badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=flat)](https://www.python.org/downloads/)
 [![PyPI version](https://img.shields.io/pypi/v/gymcts)](https://pypi.org/project/gymcts/)
-![License](https://img.shields.io/pypi/l/gymcts)
+[![License](https://img.shields.io/pypi/l/gymcts)](https://github.com/Alexander-Nasuta/gymcts/blob/master/LICENSE)
 [![Documentation Status](https://readthedocs.org/projects/gymcts/badge/?version=latest)](https://gymcts.readthedocs.io/en/latest/?badge=latest)
 
 # GYMCTS
