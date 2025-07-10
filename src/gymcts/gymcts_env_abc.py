@@ -1,8 +1,7 @@
 from typing import TypeVar, Any, SupportsFloat, Callable
 from abc import ABC, abstractmethod
 import gymnasium as gym
-
-TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
+import numpy as np
 
 
 class GymctsABC(ABC, gym.Env):
@@ -44,6 +43,17 @@ class GymctsABC(ABC, gym.Env):
         Returns a list of valid actions for the current state of the environment.
         This used to obtain potential actions/subsequent sates for the MCTS tree.
         :return: the list of valid actions
+        """
+        pass
+
+    @abstractmethod
+    def action_masks(self) -> np.ndarray | None:
+        """
+        Returns a numpy array of action masks for the environment. The array should have the same length as the number
+        of actions in the action space. If an action is valid, the corresponding mask value should be 1, otherwise 0.
+        If no action mask is available, it should return None.
+
+        :return: a numpy array of action masks or None
         """
         pass
 

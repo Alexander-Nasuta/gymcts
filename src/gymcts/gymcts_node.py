@@ -2,7 +2,7 @@ import uuid
 import random
 import math
 
-from typing import TypeVar, Any, SupportsFloat, Callable, Generator
+from typing import TypeVar, Any, SupportsFloat, Callable, Generator, Literal
 
 from gymcts.gymcts_env_abc import GymctsABC
 
@@ -15,6 +15,25 @@ class GymctsNode:
     # static properties
     best_action_weight: float = 0.05 # weight for the best action
     ubc_c = 0.707 # exploration coefficient
+
+    """
+    UCT (Upper Confidence Bound applied to Trees) exploration terms:
+
+    UCT 0:
+        c * √( 2 * ln(N(s)) / N(s,a) )
+
+    UCT 1:
+        c * √( ln(N(s)) / (1 + N(s,a)) )
+
+    UCT 2:
+        c * ( √(N(s)) / (1 + N(s,a)) )
+
+    Where:
+        N(s)     = number of times state s has been visited
+        N(s,a)   = number of times action a was taken from state s
+        c        = exploration constant
+    """
+    score_variate: Literal["UCT_v0", "UCT_v1", "UTC_v2",] = "UCT_v0"
 
 
 
@@ -42,7 +61,7 @@ class GymctsNode:
         if not colored:
 
             if not self.is_root():
-                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, ubc={self.ucb_score():.2f})"
+                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, ubc={self.tree_policy_score():.2f})"
             else:
                 return f"(N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}) [root]"
 
@@ -83,7 +102,7 @@ class GymctsNode:
                  f"{p}N{e}={colorful_value(self.visit_count)}, "
                  f"{p}Q_v{e}={ccu.wrap_with_color_scale(s=mean_val, value=self.mean_value, min_val=root_node.min_value, max_val=root_node.max_value)}, "
                  f"{p}best{e}={colorful_value(self.max_value)}") +
-                (f", {p}ubc{e}={colorful_value(self.ucb_score())})" if not self.is_root() else ")"))
+                (f", {p}ubc{e}={colorful_value(self.tree_policy_score())})" if not self.is_root() else ")"))
 
     def traverse_nodes(self) -> Generator[TGymctsNode, None, None]:
         """
@@ -252,9 +271,39 @@ class GymctsNode:
         """
         return self.max_value
 
-    def ucb_score(self):
+    def tree_policy_score(self):
         """
+        TODO: update docstring
+
         The score for an action that would transition between the parent and child.
+        For vanilla MCTS, this is the UCB1 score.
+
+        The UCB1 score is calculated using the formula:
+
+        UCT (Upper Confidence Bound applied to Trees) exploration terms:
+
+        UCT_v0:
+            c * √( 2 * ln(N(s)) / N(s,a) )
+
+        UCT_v1:
+            c * √( ln(N(s)) / (1 + N(s,a)) )
+
+        UCT_v2:
+            c * ( √(N(s)) / (1 + N(s,a)) )
+
+        Where:
+            N(s)     = number of times state s has been visited
+            N(s,a)   = number of times action a was taken from state s
+            c        = exploration constant
+
+        where:
+        - mean_value is the mean value of the node
+        - c is a constant that controls the exploration-exploitation trade-off (GymctsNode.ubc_c)
+        - parent_visit_count is the number of times the parent node has been visited
+        - visit_count is the number of times the node has been visited
+
+        If the node has not been visited yet, the score is set to infinity.
+
         prior_score = child.prior * math.sqrt(parent.visit_count) / (child.visit_count + 1)
 
         if child.visit_count > 0:
@@ -269,8 +318,20 @@ class GymctsNode:
         """
         if self.is_root():
             raise ValueError("ucb_score can only be called on non-root nodes")
-        # c = 0.707 # todo: make it an attribute?
-        c = GymctsNode.ubc_c
-        if self.visit_count == 0:
-            return float("inf")
-        return self.mean_value + c * math.sqrt(math.log(self.parent.visit_count) / (self.visit_count))
+        c = GymctsNode.ubc_c # default is 0.707
+
+        if GymctsNode.score_variate == "UCT_v0":
+            if self.visit_count == 0:
+                return float("inf")
+            return self.mean_value + c * math.sqrt( 2 * math.log(self.parent.visit_count) / (self.visit_count))
+
+        if GymctsNode.score_variate == "UCT_v1":
+            return self.mean_value + c * math.sqrt( math.log(self.parent.visit_count) / (1 + self.visit_count))
+
+        if GymctsNode.score_variate == "UCT_v2":
+            return self.mean_value + c * math.sqrt(self.parent.visit_count) / (1 + self.visit_count)
+
+        raise ValueError(f"unknown score variate: {GymctsNode.score_variate}. ")
+
+
+

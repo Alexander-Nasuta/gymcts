@@ -11,8 +11,6 @@ from gymcts.gymcts_tree_plotter import _generate_mcts_tree
 
 from gymcts.logger import log
 
-TSoloMCTSNode = TypeVar("TSoloMCTSNode", bound="SoloMCTSNode")
-
 
 class GymctsAgent:
     render_tree_after_step: bool = False
@@ -65,8 +63,8 @@ class GymctsAgent:
         # select child with highest UCB score
         while not temp_node.is_leaf():
             children = list(temp_node.children.values())
-            max_ucb_score = max(child.ucb_score() for child in children)
-            best_children = [child for child in children if child.ucb_score() == max_ucb_score]
+            max_ucb_score = max(child.tree_policy_score() for child in children)
+            best_children = [child for child in children if child.tree_policy_score() == max_ucb_score]
             temp_node = random.choice(best_children)
         log.debug(f"Selected leaf node: {temp_node}")
         return temp_node
@@ -88,7 +86,6 @@ class GymctsAgent:
                 parent=node,
                 env_reference=self.env,
             )
-
         node.children = child_dict
 
     def solve(self, num_simulations_per_step: int = None, render_tree_after_step: bool = None) -> list[int]:

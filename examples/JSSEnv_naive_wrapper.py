@@ -3,6 +3,8 @@ from jsp_vis.console import gantt_chart_console
 from gymcts.gymcts_agent import GymctsAgent
 from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
 from gymnasium.wrappers import TransformReward, NormalizeReward
+
+from gymcts.gymcts_node import GymctsNode
 from gymcts.logger import log
 
 import gymnasium as gym
@@ -516,7 +518,7 @@ if __name__ == '__main__':
         clear_mcts_tree_after_step=False,
         render_tree_after_step=True,
         exclude_unvisited_nodes_from_render=True,
-        number_of_simulations_per_step=125,
+        number_of_simulations_per_step=10,
     )
 
     root = agent.search_root_node.get_root()
