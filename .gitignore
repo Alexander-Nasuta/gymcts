@@ -7,7 +7,18 @@ __pycache__/
 .idea/
 misc.xml
 
+# ignore all directories called "wandb"
+wandb/
+wandb/*
+*/wanbd/*
+
+# ignore all directories called "media"
+media/
+media/*
+*/media/
+
 .pypitoken
+.token
 
 playground
 playground/*

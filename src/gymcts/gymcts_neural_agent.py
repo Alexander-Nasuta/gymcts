@@ -137,7 +137,7 @@ class GymctsNeuralNode(GymctsNode):
         "PUTC_v10",
         "MuZero_v0",
         "MuZero_v1",
-    ] = "UCT_v0"
+    ] = "PUCT_v0"
 
     def __init__(
             self,
@@ -271,23 +271,43 @@ class GymctsNeuralAgent(GymctsAgent):
 
     def __init__(self,
                  env: GymctsABC,
-                 clear_mcts_tree_after_step: bool = True,
-                 render_tree_after_step: bool = False,
-                 render_tree_max_depth: int = 2,
-                 number_of_simulations_per_step: int = 25,
-                 exclude_unvisited_nodes_from_render: bool = False,
+                 *args,
                  model_kwargs=None,
+                 score_variate: Literal[
+                     "PUCT_v0",
+                     "PUCT_v1",
+                     "PUTC_v2",
+                     "PUTC_v3",
+                     "PUTC_v4",
+                     "PUTC_v5",
+                     "PUTC_v6",
+                     "PUTC_v7",
+                     "PUTC_v8",
+                     "PUTC_v9",
+                     "PUTC_v10",
+                     "MuZero_v0",
+                     "MuZero_v1",
+                 ] = "PUCT_v0",
+                 **kwargs
                  ):
 
         # init super class
         super().__init__(
             env=env,
-            clear_mcts_tree_after_step=clear_mcts_tree_after_step,
-            render_tree_after_step=render_tree_after_step,
-            render_tree_max_depth=render_tree_max_depth,
-            number_of_simulations_per_step=number_of_simulations_per_step,
-            exclude_unvisited_nodes_from_render=exclude_unvisited_nodes_from_render
+            *args,
+            **kwargs
         )
+        if score_variate not in [
+            "PUCT_v0", "PUCT_v1", "PUTC_v2",
+            "PUTC_v3", "PUTC_v4", "PUTC_v5",
+            "PUTC_v6", "PUTC_v7", "PUTC_v8",
+            "PUTC_v9", "PUTC_v10",
+            "MuZero_v0", "MuZero_v1"
+        ]:
+            raise ValueError(f"Invalid score_variate: {score_variate}. Must be one of: "
+                             f"PUCT_v0, PUCT_v1, PUTC_v2, PUTC_v3, PUTC_v4, PUTC_v5, "
+                             f"PUTC_v6, PUTC_v7, PUTC_v8, PUTC_v9, PUTC_v10, MuZero_v0, MuZero_v1")
+        GymctsNeuralNode.score_variate = score_variate
 
         if model_kwargs is None:
             model_kwargs = {}

@@ -33,7 +33,7 @@ class GymctsNode:
         N(s,a)   = number of times action a was taken from state s
         c        = exploration constant
     """
-    score_variate: Literal["UCT_v0", "UCT_v1", "UTC_v2",] = "UCT_v0"
+    score_variate: Literal["UCT_v0", "UCT_v1", "UCT_v2",] = "UCT_v0"
 
 
 
@@ -211,6 +211,12 @@ class GymctsNode:
         if self.parent:
             self.parent.reset()
 
+    def remove_parent(self) -> None:
+        self.parent = None
+
+        if self.parent is not None:
+            self.parent.remove_parent()
+
     def is_root(self) -> bool:
         """
         Returns true if the node is a root node. A root node is a node that has no parent.
@@ -323,13 +329,13 @@ class GymctsNode:
         if GymctsNode.score_variate == "UCT_v0":
             if self.visit_count == 0:
                 return float("inf")
-            return self.mean_value + c * math.sqrt( 2 * math.log(self.parent.visit_count) / (self.visit_count))
+            return c * math.sqrt( 2 * math.log(self.parent.visit_count) / (self.visit_count))
 
         if GymctsNode.score_variate == "UCT_v1":
-            return self.mean_value + c * math.sqrt( math.log(self.parent.visit_count) / (1 + self.visit_count))
+            return c * math.sqrt( math.log(self.parent.visit_count) / (1 + self.visit_count))
 
         if GymctsNode.score_variate == "UCT_v2":
-            return self.mean_value + c * math.sqrt(self.parent.visit_count) / (1 + self.visit_count)
+            return c * math.sqrt(self.parent.visit_count) / (1 + self.visit_count)
 
         raise ValueError(f"unknown score variate: {GymctsNode.score_variate}. ")
 

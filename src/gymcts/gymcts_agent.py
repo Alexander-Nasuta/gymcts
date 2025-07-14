@@ -2,7 +2,7 @@ import copy
 import random
 import gymnasium as gym
 
-from typing import TypeVar, Any, SupportsFloat, Callable
+from typing import TypeVar, Any, SupportsFloat, Callable, Literal
 
 from gymcts.gymcts_env_abc import GymctsABC
 from gymcts.gymcts_deepcopy_wrapper import DeepCopyMCTSGymEnvWrapper
@@ -10,6 +10,10 @@ from gymcts.gymcts_node import GymctsNode
 from gymcts.gymcts_tree_plotter import _generate_mcts_tree
 
 from gymcts.logger import log
+
+
+
+
 
 
 class GymctsAgent:
@@ -22,17 +26,50 @@ class GymctsAgent:
     search_root_node: GymctsNode  # NOTE: this is not the same as the root of the tree!
     clear_mcts_tree_after_step: bool
 
+
+    # (num_simulations: int, step_idx: int) -> int
+    @staticmethod
+    def calc_number_of_simulations_per_step(num_simulations: int, step_idx: int) -> int:
+        """
+        A function that returns a constant number of simulations per step.
+
+        :param num_simulations: The number of simulations to return.
+        :param step_idx: The current step index (not used in this function).
+        :return: A callable that takes an environment as input and returns the constant number of simulations.
+        """
+        return num_simulations
+
     def __init__(self,
                  env: GymctsABC,
                  clear_mcts_tree_after_step: bool = True,
                  render_tree_after_step: bool = False,
                  render_tree_max_depth: int = 2,
                  number_of_simulations_per_step: int = 25,
-                 exclude_unvisited_nodes_from_render: bool = False
+                 exclude_unvisited_nodes_from_render: bool = False,
+                 calc_number_of_simulations_per_step: Callable[[int,int], int] = None,
+                 score_variate: Literal["UCT_v0", "UCT_v1", "UCT_v2",] = "UCT_v0",
+                 best_action_weight=None,
                  ):
         # check if action space of env is discrete
         if not isinstance(env.action_space, gym.spaces.Discrete):
             raise ValueError("Action space must be discrete.")
+        if calc_number_of_simulations_per_step is not None:
+            # check if the provided function is callable
+            if not callable(calc_number_of_simulations_per_step):
+                raise ValueError("calc_number_of_simulations_per_step must be a callable accepting two arguments: num_simulations and step_idx.")
+            # assign the provided function to the attribute
+            # it needs to be staticmethod to be used as a class attribute
+            print("Using provided calc_number_of_simulations_per_step function.")
+            self.calc_number_of_simulations_per_step = staticmethod(calc_number_of_simulations_per_step)
+        if score_variate not in ["UCT_v0", "UCT_v1", "UCT_v2"]:
+            raise ValueError("score_variate must be one of ['UCT_v0', 'UCT_v1', 'UCT_v2'].")
+        GymctsNode.score_variate = score_variate
+
+        if best_action_weight is not None:
+            if best_action_weight < 0 or best_action_weight > 1:
+                raise ValueError("best_action_weight must be in range [0, 1].")
+            GymctsNode.best_action_weight = best_action_weight
+
 
         self.render_tree_after_step = render_tree_after_step
         self.exclude_unvisited_nodes_from_render = exclude_unvisited_nodes_from_render
@@ -101,12 +138,19 @@ class GymctsAgent:
 
         action_list = []
 
+        idx = 0
         while not current_node.terminal:
-            next_action, current_node = self.perform_mcts_step(num_simulations=num_simulations_per_step,
+            num_sims = self.calc_number_of_simulations_per_step(num_simulations_per_step, idx)
+
+            log.info(f"Performing MCTS step {idx} with {num_sims} simulations.")
+
+            next_action, current_node = self.perform_mcts_step(num_simulations=num_sims,
                                                                render_tree_after_step=render_tree_after_step)
-            log.info(f"selected action {next_action} after {num_simulations_per_step} simulations.")
+            log.info(f"selected action {next_action} after {num_sims} simulations.")
             action_list.append(next_action)
             log.info(f"current action list: {action_list}")
+
+            idx += 1
 
         log.info(f"Final action list: {action_list}")
         # restore state of current node
@@ -146,6 +190,8 @@ class GymctsAgent:
             # we also need to reset the children of the current node
             # this is done by calling the reset method
             next_node.reset()
+        else:
+            next_node.remove_parent()
 
         self.search_root_node = next_node
 
