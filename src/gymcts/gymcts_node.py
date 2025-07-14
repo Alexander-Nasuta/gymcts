@@ -326,16 +326,20 @@ class GymctsNode:
             raise ValueError("ucb_score can only be called on non-root nodes")
         c = GymctsNode.ubc_c # default is 0.707
 
+        assert 0 <= GymctsNode.best_action_weight <= 1
+        b = GymctsNode.best_action_weight
+        exploitation_term = 0.0 if self.visit_count == 0 else (1 - b) * self.mean_value + b * self.max_value
+
         if GymctsNode.score_variate == "UCT_v0":
             if self.visit_count == 0:
                 return float("inf")
-            return c * math.sqrt( 2 * math.log(self.parent.visit_count) / (self.visit_count))
+            return exploitation_term + c * math.sqrt( 2 * math.log(self.parent.visit_count) / (self.visit_count))
 
         if GymctsNode.score_variate == "UCT_v1":
-            return c * math.sqrt( math.log(self.parent.visit_count) / (1 + self.visit_count))
+            return exploitation_term + c * math.sqrt( math.log(self.parent.visit_count) / (1 + self.visit_count))
 
         if GymctsNode.score_variate == "UCT_v2":
-            return c * math.sqrt(self.parent.visit_count) / (1 + self.visit_count)
+            return exploitation_term + c * math.sqrt(self.parent.visit_count) / (1 + self.visit_count)
 
         raise ValueError(f"unknown score variate: {GymctsNode.score_variate}. ")
 

@@ -49,6 +49,7 @@ class GymctsAgent:
                  calc_number_of_simulations_per_step: Callable[[int,int], int] = None,
                  score_variate: Literal["UCT_v0", "UCT_v1", "UCT_v2",] = "UCT_v0",
                  best_action_weight=None,
+                 keep_whole_tree_till_initial_root: bool = False,
                  ):
         # check if action space of env is discrete
         if not isinstance(env.action_space, gym.spaces.Discrete):
@@ -79,6 +80,7 @@ class GymctsAgent:
 
         self.env = env
         self.clear_mcts_tree_after_step = clear_mcts_tree_after_step
+        self.keep_whole_tree_till_initial_root = keep_whole_tree_till_initial_root
 
         self.search_root_node = GymctsNode(
             action=None,
@@ -190,7 +192,7 @@ class GymctsAgent:
             # we also need to reset the children of the current node
             # this is done by calling the reset method
             next_node.reset()
-        else:
+        elif not self.keep_whole_tree_till_initial_root:
             next_node.remove_parent()
 
         self.search_root_node = next_node

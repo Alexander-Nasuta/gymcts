@@ -162,37 +162,43 @@ class GymctsNeuralNode(GymctsNode):
         p_sa = self._selection_score_prior
         n_s = self.parent.visit_count
         n_sa = self.visit_count
+
+        assert 0 <= GymctsNode.best_action_weight <= 1
+        b = GymctsNode.best_action_weight
+        exploitation_term = 0.0 if self.visit_count == 0 else (1 - b) * self.mean_value + b * self.max_value
+
+
         if GymctsNeuralNode.score_variate == "PUCT_v0":
-            return self.mean_value + c * p_sa * math.sqrt(n_s) / (1 + n_sa)
+            return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa)
         elif GymctsNeuralNode.score_variate == "PUCT_v1":
-            return self.mean_value + c * p_sa * math.sqrt(2 * math.log(n_s) / (n_sa))
+            return exploitation_term + c * p_sa * math.sqrt(2 * math.log(n_s) / (n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v2":
-            return self.mean_value + c * p_sa * math.sqrt(n_s) / n_sa
+            return exploitation_term + c * p_sa * math.sqrt(n_s) / n_sa
         elif GymctsNeuralNode.score_variate == "PUCT_v3":
-            return self.mean_value + c * (p_sa ** GymctsNeuralNode.PUCT_v3_mu) * math.sqrt(n_s / (1 + n_sa))
+            return exploitation_term + c * (p_sa ** GymctsNeuralNode.PUCT_v3_mu) * math.sqrt(n_s / (1 + n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v4":
-            return self.mean_value + c * (p_sa / (1 + n_sa))
+            return exploitation_term + c * (p_sa / (1 + n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v5":
-            return self.mean_value + c * p_sa * (math.sqrt(n_s) + 1) / (n_sa + 1)
+            return exploitation_term + c * p_sa * (math.sqrt(n_s) + 1) / (n_sa + 1)
         elif GymctsNeuralNode.score_variate == "PUCT_v6":
-            return self.mean_value + c * p_sa * n_s / (1 + n_sa)
+            return exploitation_term + c * p_sa * n_s / (1 + n_sa)
         elif GymctsNeuralNode.score_variate == "PUCT_v7":
             epsilon = 1e-8
-            return self.mean_value + c * p_sa * (math.sqrt(n_s) + epsilon) / (n_sa + 1)
+            return exploitation_term + c * p_sa * (math.sqrt(n_s) + epsilon) / (n_sa + 1)
         elif GymctsNeuralNode.score_variate == "PUCT_v8":
-            return self.mean_value + c * p_sa * math.sqrt((math.log(n_s) + 1) / (1 + n_sa))
+            return exploitation_term + c * p_sa * math.sqrt((math.log(n_s) + 1) / (1 + n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v9":
-            return self.mean_value + c * p_sa * math.sqrt(n_s / (1 + n_sa))
+            return exploitation_term + c * p_sa * math.sqrt(n_s / (1 + n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v10":
-            return self.mean_value + c * p_sa * math.sqrt(math.log(n_s) / (1 + n_sa))
+            return exploitation_term + c * p_sa * math.sqrt(math.log(n_s) / (1 + n_sa))
         elif GymctsNeuralNode.score_variate == "MuZero_v0":
             c1 = GymctsNeuralNode.MuZero_c1
             c2 = GymctsNeuralNode.MuZero_c2
-            return self.mean_value + c * p_sa * math.sqrt(n_s) / (1 + n_sa) * (c1 + math.log((n_s + c2 + 1) / c2))
+            return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa) * (c1 + math.log((n_s + c2 + 1) / c2))
         elif GymctsNeuralNode.score_variate == "MuZero_v1":
             c1 = GymctsNeuralNode.MuZero_c1
             c2 = GymctsNeuralNode.MuZero_c2
-            return self.mean_value + c * p_sa * math.sqrt(n_s) / (1 + n_sa) * (c1 + math.log((n_s + c2 + 1) / c2))
+            return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa) * (c1 + math.log((n_s + c2 + 1) / c2))
 
 
         exploration_term = self._selection_score_prior * c * math.sqrt(math.log(self.parent.visit_count) / (self.visit_count)) if self.visit_count > 0 else float("inf")

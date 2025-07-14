@@ -121,7 +121,7 @@ if __name__ == '__main__':
         "clear_mcts_tree_after_step": True,
         "render_tree_after_step": True,
         "render_tree_max_depth": 2,
-        "number_of_simulations_per_step": 100,
+        "number_of_simulations_per_step": 50,
         "exclude_unvisited_nodes_from_render": False,
         "calc_number_of_simulations_per_step": None,
         "score_variate": "UCT_v2",

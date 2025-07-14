@@ -4,7 +4,7 @@ from gymcts.gymcts_agent import GymctsAgent
 def test_number_of_visits_without_clearing_root(graph_matrix_env_naive_wrapper_singe_job_jsp_instance):
     env = graph_matrix_env_naive_wrapper_singe_job_jsp_instance
 
-    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False)
+    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False, keep_whole_tree_till_initial_root=True)
 
     assert agent.search_root_node.visit_count == 0
     agent.vanilla_mcts_search(search_start_node=agent.search_root_node, num_simulations=10)
@@ -20,7 +20,7 @@ def test_number_of_visits_without_clearing_root(graph_matrix_env_naive_wrapper_s
 def test_number_of_visits_without_clearing(graph_matrix_env_naive_wrapper_singe_job_jsp_instance):
     env = graph_matrix_env_naive_wrapper_singe_job_jsp_instance
 
-    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False)
+    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False, keep_whole_tree_till_initial_root=True)
     assert agent.search_root_node.visit_count == 0
 
     actions = agent.solve(num_simulations_per_step=10)
@@ -43,7 +43,7 @@ def test_number_of_visits_without_clearing_root_dynamic_step_size(graph_matrix_e
 
     env = graph_matrix_env_naive_wrapper_singe_job_jsp_instance
 
-    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False)
+    agent = GymctsAgent(env=env, clear_mcts_tree_after_step=False, keep_whole_tree_till_initial_root=True)
 
     tree_root = agent.search_root_node
 
@@ -89,6 +89,7 @@ def test_number_of_visits_with_clearing_root2(graph_matrix_env_naive_wrapper_two
     agent = GymctsAgent(
         env=env,
         clear_mcts_tree_after_step=False,
+        keep_whole_tree_till_initial_root=True,
         number_of_simulations_per_step=50
     )
 
