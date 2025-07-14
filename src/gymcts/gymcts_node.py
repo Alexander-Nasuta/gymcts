@@ -61,7 +61,7 @@ class GymctsNode:
         if not colored:
 
             if not self.is_root():
-                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, ubc={self.tree_policy_score():.2f})"
+                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, {GymctsNode.score_variate}={self.tree_policy_score():.2f})"
             else:
                 return f"(N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}) [root]"
 
@@ -102,7 +102,7 @@ class GymctsNode:
                  f"{p}N{e}={colorful_value(self.visit_count)}, "
                  f"{p}Q_v{e}={ccu.wrap_with_color_scale(s=mean_val, value=self.mean_value, min_val=root_node.min_value, max_val=root_node.max_value)}, "
                  f"{p}best{e}={colorful_value(self.max_value)}") +
-                (f", {p}ubc{e}={colorful_value(self.tree_policy_score())})" if not self.is_root() else ")"))
+                (f", {p}{GymctsNode.score_variate}{e}={colorful_value(self.tree_policy_score())})" if not self.is_root() else ")"))
 
     def traverse_nodes(self) -> Generator[TGymctsNode, None, None]:
         """

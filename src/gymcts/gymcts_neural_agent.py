@@ -227,7 +227,7 @@ class GymctsNeuralNode(GymctsNode):
         if not colored:
 
             if not self.is_root():
-                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, ubc={self.tree_policy_score():.2f})"
+                return f"(a={self.action}, N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}, {GymctsNeuralNode.score_variate}={self.tree_policy_score():.2f})"
             else:
                 return f"(N={self.visit_count}, Q_v={self.mean_value:.2f}, best={self.max_value:.2f}) [root]"
 
