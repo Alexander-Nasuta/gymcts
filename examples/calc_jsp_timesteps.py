@@ -17,9 +17,9 @@ def estimate_cost(n_jobs, n_machines, n_sims_per_step) -> int:
 
 
 if __name__ == '__main__':
-    n_jobs = 6
-    n_machines = 6
-    n_sims_per_step = 1_000
+    n_jobs = 10
+    n_machines = 10
+    n_sims_per_step = 900
 
     upper_cost, lower_cost = estimate_cost(
         n_jobs=n_jobs,

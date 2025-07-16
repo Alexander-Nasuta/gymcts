@@ -55,12 +55,9 @@ class GraphJspNeuralGYMCTSWrapper(GymctsABC, gym.Wrapper):
     def get_state(self) -> Any:
         return env.unwrapped.get_action_history()
 
-
     def action_masks(self) -> np.ndarray | None:
         """Return the action mask for the current state."""
         return self.env.unwrapped.valid_action_mask()
-
-
 
 
 class GymctsNeuralNode(GymctsNode):
@@ -126,15 +123,15 @@ class GymctsNeuralNode(GymctsNode):
     score_variate: Literal[
         "PUCT_v0",
         "PUCT_v1",
-        "PUTC_v2",
-        "PUTC_v3",
-        "PUTC_v4",
-        "PUTC_v5",
-        "PUTC_v6",
-        "PUTC_v7",
-        "PUTC_v8",
-        "PUTC_v9",
-        "PUTC_v10",
+        "PUCT_v2",
+        "PUCT_v3",
+        "PUCT_v4",
+        "PUCT_v5",
+        "PUCT_v6",
+        "PUCT_v7",
+        "PUCT_v8",
+        "PUCT_v9",
+        "PUCT_v10",
         "MuZero_v0",
         "MuZero_v1",
     ] = "PUCT_v0"
@@ -146,12 +143,11 @@ class GymctsNeuralNode(GymctsNode):
             env_reference: GymctsABC,
             prior_selection_score: float,
             observation: np.ndarray | None = None,
-        ):
+    ):
         super().__init__(action, parent, env_reference)
 
         self._obs = observation
         self._selection_score_prior = prior_selection_score
-
 
     def tree_policy_score(self) -> float:
         # call the superclass (GymctsNode) for ucb_score
@@ -167,12 +163,13 @@ class GymctsNeuralNode(GymctsNode):
         b = GymctsNode.best_action_weight
         exploitation_term = 0.0 if self.visit_count == 0 else (1 - b) * self.mean_value + b * self.max_value
 
-
         if GymctsNeuralNode.score_variate == "PUCT_v0":
             return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa)
         elif GymctsNeuralNode.score_variate == "PUCT_v1":
             return exploitation_term + c * p_sa * math.sqrt(2 * math.log(n_s) / (n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v2":
+            if n_sa == 0:
+                return float("inf")  # Avoid division by zero
             return exploitation_term + c * p_sa * math.sqrt(n_s) / n_sa
         elif GymctsNeuralNode.score_variate == "PUCT_v3":
             return exploitation_term + c * (p_sa ** GymctsNeuralNode.PUCT_v3_mu) * math.sqrt(n_s / (1 + n_sa))
@@ -200,10 +197,9 @@ class GymctsNeuralNode(GymctsNode):
             c2 = GymctsNeuralNode.MuZero_c2
             return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa) * (c1 + math.log((n_s + c2 + 1) / c2))
 
-
-        exploration_term = self._selection_score_prior * c * math.sqrt(math.log(self.parent.visit_count) / (self.visit_count)) if self.visit_count > 0 else float("inf")
+        exploration_term = self._selection_score_prior * c * math.sqrt(
+            math.log(self.parent.visit_count) / (self.visit_count)) if self.visit_count > 0 else float("inf")
         return self.mean_value + exploration_term
-
 
     def get_best_action(self) -> int:
         """
@@ -213,7 +209,6 @@ class GymctsNeuralNode(GymctsNode):
         :return: the best action of the node.
         """
         return max(self.children.values(), key=lambda child: child.max_value).action
-
 
     def __str__(self, colored=False, action_space_n=None) -> str:
         """
@@ -263,14 +258,13 @@ class GymctsNeuralNode(GymctsNode):
         root_node = self.get_root()
         mean_val = f"{self.mean_value:.2f}"
 
-
         return ((f"("
                  f"{p}a{e}={ccu.wrap_evenly_spaced_color(s=self.action, n_of_item=self.action, n_classes=action_space_n)}, "
                  f"{p}N{e}={colorful_value(self.visit_count)}, "
                  f"{p}Q_v{e}={ccu.wrap_with_color_scale(s=mean_val, value=self.mean_value, min_val=root_node.min_value, max_val=root_node.max_value)}, "
                  f"{p}best{e}={colorful_value(self.max_value)}") +
-                (f", {p}{GymctsNeuralNode.score_variate}{e}={colorful_value(self.tree_policy_score())})" if not self.is_root() else ")"))
-
+                (
+                    f", {p}{GymctsNeuralNode.score_variate}{e}={colorful_value(self.tree_policy_score())})" if not self.is_root() else ")"))
 
 
 class GymctsNeuralAgent(GymctsAgent):
@@ -282,15 +276,15 @@ class GymctsNeuralAgent(GymctsAgent):
                  score_variate: Literal[
                      "PUCT_v0",
                      "PUCT_v1",
-                     "PUTC_v2",
-                     "PUTC_v3",
-                     "PUTC_v4",
-                     "PUTC_v5",
-                     "PUTC_v6",
-                     "PUTC_v7",
-                     "PUTC_v8",
-                     "PUTC_v9",
-                     "PUTC_v10",
+                     "PUCT_v2",
+                     "PUCT_v3",
+                     "PUCT_v4",
+                     "PUCT_v5",
+                     "PUCT_v6",
+                     "PUCT_v7",
+                     "PUCT_v8",
+                     "PUCT_v9",
+                     "PUCT_v10",
                      "MuZero_v0",
                      "MuZero_v1",
                  ] = "PUCT_v0",
@@ -304,15 +298,23 @@ class GymctsNeuralAgent(GymctsAgent):
             **kwargs
         )
         if score_variate not in [
-            "PUCT_v0", "PUCT_v1", "PUTC_v2",
-            "PUTC_v3", "PUTC_v4", "PUTC_v5",
-            "PUTC_v6", "PUTC_v7", "PUTC_v8",
-            "PUTC_v9", "PUTC_v10",
-            "MuZero_v0", "MuZero_v1"
+            "PUCT_v0",
+            "PUCT_v1",
+            "PUCT_v2",
+            "PUCT_v3",
+            "PUCT_v4",
+            "PUCT_v5",
+            "PUCT_v6",
+            "PUCT_v7",
+            "PUCT_v8",
+            "PUCT_v9",
+            "PUCT_v10",
+            "MuZero_v0",
+            "MuZero_v1",
         ]:
             raise ValueError(f"Invalid score_variate: {score_variate}. Must be one of: "
-                             f"PUCT_v0, PUCT_v1, PUTC_v2, PUTC_v3, PUTC_v4, PUTC_v5, "
-                             f"PUTC_v6, PUTC_v7, PUTC_v8, PUTC_v9, PUTC_v10, MuZero_v0, MuZero_v1")
+                             f"['PUCT_v0', 'PUCT_v1', 'PUCT_v2', 'PUCT_v3', 'PUCT_v4', 'PUCT_v5', "
+                             f"'PUCT_v6', 'PUCT_v7', 'PUCT_v8', 'PUCT_v9', 'PUCT_v10', 'MuZero_v0', 'MuZero_v1']")
         GymctsNeuralNode.score_variate = score_variate
 
         if model_kwargs is None:
@@ -336,21 +338,16 @@ class GymctsNeuralAgent(GymctsAgent):
         env = ActionMasker(env, action_mask_fn=mask_fn)
 
         model_kwargs = {
-            "policy": MaskableActorCriticPolicy,
-            "env": env,
-            "verbose": 1,
-        } | model_kwargs
+                           "policy": MaskableActorCriticPolicy,
+                           "env": env,
+                           "verbose": 1,
+                       } | model_kwargs
 
         self._model = sb3_contrib.MaskablePPO(**model_kwargs)
 
-
-
-
-
-    def learn(self, total_timesteps:int, **kwargs) -> None:
+    def learn(self, total_timesteps: int, **kwargs) -> None:
         """Learn from the environment using the MaskablePPO model."""
         self._model.learn(total_timesteps=total_timesteps, **kwargs)
-
 
     def expand_node(self, node: GymctsNeuralNode) -> None:
         log.debug(f"expanding node: {node}")
@@ -395,7 +392,6 @@ class GymctsNeuralAgent(GymctsAgent):
             if prob == 0.0:
                 continue
 
-
             assert action in node.valid_actions, f"Action {action} is not in valid actions: {node.valid_actions}"
 
             obs, reward, terminal, truncated, _ = self.env.step(action)
@@ -411,9 +407,6 @@ class GymctsNeuralAgent(GymctsAgent):
         # print(f"Expanded node {node} with {len(node.children)} children.")
 
 
-
-
-
 if __name__ == '__main__':
     log.setLevel(20)
 
@@ -426,14 +419,13 @@ if __name__ == '__main__':
         "reward_function": "nasuta",
     }
 
-
-
     env = DisjunctiveGraphJspEnv(**env_kwargs)
     env.reset()
 
     env = GraphJspNeuralGYMCTSWrapper(env)
 
     import torch
+
     model_kwargs = {
         "gamma": 0.99013,
         "gae_lambda": 0.9,
@@ -467,7 +459,6 @@ if __name__ == '__main__':
 
     agent.learn(total_timesteps=10_000)
 
-
     agent.solve()
 
     actions = agent.solve(render_tree_after_step=True)
@@ -477,9 +468,3 @@ if __name__ == '__main__':
     env.render()
     makespan = env.unwrapped.get_makespan()
     print(f"makespan: {makespan}")
-
-
-
-
-
-
