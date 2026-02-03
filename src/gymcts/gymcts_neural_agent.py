@@ -166,6 +166,8 @@ class GymctsNeuralNode(GymctsNode):
         if GymctsNeuralNode.score_variate == "PUCT_v0":
             return exploitation_term + c * p_sa * math.sqrt(n_s) / (1 + n_sa)
         elif GymctsNeuralNode.score_variate == "PUCT_v1":
+            if n_sa == 0:
+                return float("inf")  # Avoid division by zero
             return exploitation_term + c * p_sa * math.sqrt(2 * math.log(n_s) / (n_sa))
         elif GymctsNeuralNode.score_variate == "PUCT_v2":
             if n_sa == 0:
