@@ -1,5 +1,4 @@
 import copy
-import sys
 from typing import Any, Literal
 
 import random
@@ -9,8 +8,7 @@ import sb3_contrib
 import gymnasium as gym
 import numpy as np
 
-from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
-from jsp_instance_utils.instances import ft06, ft06_makespan
+
 from sb3_contrib.common.maskable.distributions import MaskableCategoricalDistribution
 from sb3_contrib.common.maskable.policies import MaskableActorCriticPolicy
 from sb3_contrib.common.wrappers import ActionMasker
@@ -20,44 +18,6 @@ from gymcts.gymcts_env_abc import GymctsABC
 from gymcts.gymcts_node import GymctsNode
 
 from gymcts.logger import log
-
-
-class GraphJspNeuralGYMCTSWrapper(GymctsABC, gym.Wrapper):
-
-    def __init__(self, env: DisjunctiveGraphJspEnv):
-        gym.Wrapper.__init__(self, env)
-
-    def load_state(self, state: Any) -> None:
-        self.env.reset()
-        for action in state:
-            self.env.step(action)
-
-    def is_terminal(self) -> bool:
-        return self.env.unwrapped.is_terminal()
-
-    def get_valid_actions(self) -> list[int]:
-        return list(self.env.unwrapped.valid_actions())
-
-    def rollout(self) -> float:
-        terminal = env.is_terminal()
-
-        if terminal:
-            lower_bound = env.unwrapped.reward_function_parameters['scaling_divisor']
-            return - env.unwrapped.get_makespan() / lower_bound + 2
-
-        reward = 0
-        while not terminal:
-            action = random.choice(self.get_valid_actions())
-            obs, reward, terminal, truncated, _ = env.step(action)
-
-        return reward + 2
-
-    def get_state(self) -> Any:
-        return env.unwrapped.get_action_history()
-
-    def action_masks(self) -> np.ndarray | None:
-        """Return the action mask for the current state."""
-        return self.env.unwrapped.valid_action_mask()
 
 
 class GymctsNeuralNode(GymctsNode):
@@ -331,6 +291,9 @@ class GymctsNeuralAgent(GymctsAgent):
             prior_selection_score=1.0,
         )
 
+        # deepcopy the initial state of the environment to be able to reset to it later
+        self._reset_search_root_node = copy.deepcopy(self.search_root_node)
+
         def mask_fn(env: gym.Env) -> np.ndarray:
             mask = env.action_masks()
             if mask is None:
@@ -350,6 +313,9 @@ class GymctsNeuralAgent(GymctsAgent):
     def learn(self, total_timesteps: int, **kwargs) -> None:
         """Learn from the environment using the MaskablePPO model."""
         self._model.learn(total_timesteps=total_timesteps, **kwargs)
+
+    def reset(self) -> None:
+        self.search_root_node = copy.deepcopy(self._reset_search_root_node)
 
     def expand_node(self, node: GymctsNeuralNode) -> None:
         log.debug(f"expanding node: {node}")
@@ -389,7 +355,7 @@ class GymctsNeuralAgent(GymctsAgent):
         for action, prob in enumerate(unwrapped_distribution):
             self._load_state(node)
 
-            log.debug(f"Probabily for action {action}: {prob}")
+            log.debug(f"Probably for action {action}: {prob}")
 
             if prob == 0.0:
                 continue
@@ -410,6 +376,47 @@ class GymctsNeuralAgent(GymctsAgent):
 
 
 if __name__ == '__main__':
+    from graph_jsp_env.disjunctive_graph_jsp_env import DisjunctiveGraphJspEnv
+    from jsp_instance_utils.instances import ft06, ft06_makespan
+
+
+    class GraphJspNeuralGYMCTSWrapper(GymctsABC, gym.Wrapper):
+
+        def __init__(self, env: DisjunctiveGraphJspEnv):
+            gym.Wrapper.__init__(self, env)
+
+        def load_state(self, state: Any) -> None:
+            self.env.reset()
+            for action in state:
+                self.env.step(action)
+
+        def is_terminal(self) -> bool:
+            return self.env.unwrapped.is_terminal()
+
+        def get_valid_actions(self) -> list[int]:
+            return list(self.env.unwrapped.valid_actions())
+
+        def rollout(self) -> float:
+            terminal = env.is_terminal()
+
+            if terminal:
+                lower_bound = env.unwrapped.reward_function_parameters['scaling_divisor']
+                return - env.unwrapped.get_makespan() / lower_bound + 2
+
+            reward = 0
+            while not terminal:
+                action = random.choice(self.get_valid_actions())
+                obs, reward, terminal, truncated, _ = env.step(action)
+
+            return reward + 2
+
+        def get_state(self) -> Any:
+            return env.unwrapped.get_action_history()
+
+        def action_masks(self) -> np.ndarray | None:
+            """Return the action mask for the current state."""
+            return self.env.unwrapped.valid_action_mask()
+
     log.setLevel(20)
 
     env_kwargs = {
@@ -454,16 +461,24 @@ if __name__ == '__main__':
         render_tree_after_step=True,
         render_tree_max_depth=3,
         exclude_unvisited_nodes_from_render=False,
-        number_of_simulations_per_step=15,
+        number_of_simulations_per_step=10,
         # clear_mcts_tree_after_step = False,
         model_kwargs=model_kwargs
     )
 
     agent.learn(total_timesteps=10_000)
 
-    agent.solve()
-
     actions = agent.solve(render_tree_after_step=True)
+    for a in actions:
+        obs, rew, term, trun, info = env.step(a)
+
+    env.render()
+    makespan = env.unwrapped.get_makespan()
+    print(f"makespan: {makespan}")
+
+    agent.reset()
+
+    actions = agent.solve(render_tree_after_step=True, num_simulations_per_step=30)
     for a in actions:
         obs, rew, term, trun, info = env.step(a)
 
