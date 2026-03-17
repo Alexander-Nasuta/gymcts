@@ -421,9 +421,10 @@ if __name__ == '__main__':
 
 ## State of the Project
 
-This project is complementary material for a research paper. It will not be frequently updated.
-Minor updates might occur.
-Significant further development will most likely result in a new project. In that case, a note with a link will be added in the `README.md` of this project.  
+This project is a personal library developed for use in research projects and scientific applications.
+It will be actively maintained until the end of 2027.
+If you encounter any issues when applying it to your use case or getting it to run, please feel free to open a GitHub issue.
+Please note that there are currently some inconsistencies in the wrapper naming. These are expected to be addressed in the next major release (v2.0.0).
 
 ## Dependencies
 

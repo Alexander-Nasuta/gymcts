@@ -170,7 +170,7 @@ class GymctsNeuralNode(GymctsNode):
 
         :return: the best action of the node.
         """
-        return max(self.children.values(), key=lambda child: child.max_value).action
+        return max(self.children.values(), key=lambda child: child.get_score()).action
 
     def __str__(self, colored=False, action_space_n=None) -> str:
         """
@@ -334,23 +334,6 @@ class GymctsNeuralAgent(GymctsAgent):
         # print(f'valid actions: {node.valid_actions}')
         # print(f'env mask: {self.env.action_masks()}')
         # print(f'env valid actions: {self.env.get_valid_actions()}')
-        """
-                for action in node.valid_actions:
-            # reconstruct state
-            # load state of leaf node
-            self._load_state(node)
-
-            obs, reward, terminal, truncated, _ = self.env.step(action)
-            child_dict[action] = GymctsNeuralNode(
-                action=action,
-                parent=node,
-                env_reference=self.env,
-                observation=obs,
-                prior_selection_score=1.0,
-            )
-        node.children = child_dict
-        return
-        """
 
         for action, prob in enumerate(unwrapped_distribution):
             self._load_state(node)
@@ -372,7 +355,6 @@ class GymctsNeuralAgent(GymctsAgent):
             )
 
         node.children = child_dict
-        # print(f"Expanded node {node} with {len(node.children)} children.")
 
 
 if __name__ == '__main__':
