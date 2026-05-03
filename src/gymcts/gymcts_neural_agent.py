@@ -326,7 +326,10 @@ class GymctsNeuralAgent(GymctsAgent):
 
         self._load_state(node)
 
-        obs_tensor, vectorized_env = self._model.policy.obs_to_tensor(np.array([node._obs]))
+        if isinstance(node._obs, dict):
+            obs_tensor, vectorized_env = self._model.policy.obs_to_tensor(node._obs)
+        else:
+            obs_tensor, vectorized_env = self._model.policy.obs_to_tensor(np.array([node._obs]))
         action_masks = np.array([self.env.action_masks()])
         distribution = self._model.policy.get_distribution(obs=obs_tensor, action_masks=action_masks)
         unwrapped_distribution = distribution.distribution.probs[0]
