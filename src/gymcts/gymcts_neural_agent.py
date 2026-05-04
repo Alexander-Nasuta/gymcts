@@ -234,6 +234,7 @@ class GymctsNeuralAgent(GymctsAgent):
     def __init__(self,
                  env: GymctsABC,
                  *args,
+                 model : sb3_contrib.MaskablePPO = None,
                  model_kwargs=None,
                  score_variate: Literal[
                      "PUCT_v0",
@@ -302,13 +303,16 @@ class GymctsNeuralAgent(GymctsAgent):
 
         env = ActionMasker(env, action_mask_fn=mask_fn)
 
-        model_kwargs = {
-                           "policy": MaskableActorCriticPolicy,
-                           "env": env,
-                           "verbose": 1,
-                       } | model_kwargs
+        if model is None:
+            model_kwargs = {
+                            "policy": MaskableActorCriticPolicy,
+                            "env": env,
+                            "verbose": 1,
+                        } | model_kwargs
 
-        self._model = sb3_contrib.MaskablePPO(**model_kwargs)
+            self._model = sb3_contrib.MaskablePPO(**model_kwargs)
+        else:
+            self._model = model
 
     def learn(self, total_timesteps: int, **kwargs) -> None:
         """Learn from the environment using the MaskablePPO model."""
