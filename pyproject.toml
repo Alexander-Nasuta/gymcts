@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gymcts"
-version = "1.5.1"
+version = "1.6.0"
 description = "A minimalistic implementation of the Monte Carlo Tree Search algorithm for planning problems fomulated as gymnaisum reinforcement learning environments."
 readme = "README.md"
 authors = [{ name = "Alexander Nasuta", email = "alexander.nasuta@wzl-iqs.rwth-aachen.de" }]
@@ -19,7 +19,7 @@ dependencies = [
     "rich",
     "numpy",
     "gymnasium",
-    "matplotlib<3.9",
+    "matplotlib>=3.6",
 ]
 requires-python = ">=3.11"
 
@@ -27,12 +27,12 @@ requires-python = ">=3.11"
 [project.optional-dependencies]
 examples = [
     "jsp-instance-utils",
-    "graph-matrix-jsp-env",
+    "graph-matrix-jsp-env>=1.0.1",
     "graph-jsp-env",
 ]
 dev = [
     "jsp-instance-utils",
-    "graph-matrix-jsp-env>=0.3.0",
+    "graph-matrix-jsp-env>=1.0.1",
     "graph-jsp-env",
     "JSSEnv",
 

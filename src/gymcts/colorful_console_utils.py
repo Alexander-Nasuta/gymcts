@@ -1,6 +1,7 @@
 from typing import Any
 
-import matplotlib.pyplot as plt
+import matplotlib
+from matplotlib.colors import LinearSegmentedColormap
 import numpy as np
 
 CEND = "\33[0m"
@@ -121,7 +122,7 @@ def wrap_evenly_spaced_color(s: Any, n_of_item: int, n_classes: int, c_map="rain
     if s is None or n_of_item is None or n_classes is None:
         return s
 
-    c_map = plt.cm.get_cmap(c_map)  # select the desired cmap
+    c_map = matplotlib.colormaps.get_cmap(c_map)  # select the desired cmap (name or Colormap instance)
     arr = np.linspace(0, 1, n_classes + 1)  # create a list with numbers from 0 to 1 with n items
 
     color_vals = c_map(arr[n_of_item])[:-1]
@@ -145,9 +146,8 @@ def wrap_with_color_scale(s: str, value: float, min_val: float, max_val: float, 
         return s
 
     if c_map is not None:
-        c_map = plt.cm.get_cmap(c_map)  # select the desired cmap
+        c_map = matplotlib.colormaps.get_cmap(c_map)  # select the desired cmap (name or Colormap instance)
     else:
-        from matplotlib.colors import LinearSegmentedColormap
         colors = [
             np.array([255 / 255, 100 / 255, 128 / 255, 1.0]),  # RGBA values
             np.array([63 / 255, 197 / 255, 161 / 255, 1.0]),  # RGBA values

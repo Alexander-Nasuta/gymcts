@@ -4,174 +4,172 @@
 #
 #    pip-compile --extra=dev --output-file=requirements_dev.txt pyproject.toml
 #
-absl-py==2.1.0
+absl-py==2.5.1
     # via ortools
+accessible-pygments==0.0.5
+    # via furo
 alabaster==1.0.0
     # via sphinx
-anyio==4.8.0
+anyio==4.16.0
     # via
     #   httpx
     #   jupyter-server
     #   starlette
     #   watchfiles
-appnope==0.1.4
+appnope==1.0.0
     # via ipykernel
-argon2-cffi==23.1.0
+argon2-cffi==25.1.0
     # via jupyter-server
-argon2-cffi-bindings==21.2.0
+argon2-cffi-bindings==26.2.0
     # via argon2-cffi
-arrow==1.3.0
+arrow==1.4.0
     # via isoduration
-asttokens==3.0.0
+ast-serialize==0.13.1
+    # via mypy
+asttokens==3.0.2
     # via stack-data
-async-lru==2.0.5
+async-lru==2.4.0
     # via jupyterlab
-attrs==24.3.0
+attrs==26.1.0
     # via
     #   jsonschema
     #   referencing
-babel==2.16.0
+babel==2.18.0
     # via
     #   jupyterlab-server
     #   sphinx
 backports-tarfile==1.2.0
     # via jaraco-context
-beautifulsoup4==4.12.3
+beautifulsoup4==4.15.0
     # via
     #   furo
     #   jsp-instance-utils
     #   nbconvert
-bleach[css]==6.2.0
+bleach[css]==6.4.0
     # via nbconvert
-build==1.2.2.post1
+build==1.6.1
     # via pip-tools
-certifi==2024.12.14
+certifi==2026.10.23
     # via
     #   httpcore
     #   httpx
     #   requests
-cffi==1.17.1
+cffi==2.1.1
     # via argon2-cffi-bindings
-charset-normalizer==3.4.1
+charset-normalizer==3.5.2
     # via requests
-click==8.1.8
+choreographer==1.4.0
+    # via kaleido
+click==8.5.1
     # via
     #   pip-tools
     #   uvicorn
-cloudpickle==3.1.1
+cloudpickle==3.1.2
     # via
-    #   gym
     #   gymnasium
     #   stable-baselines3
-codecov==2.1.13
-    # via jssenv
 colorama==0.4.6
     # via sphinx-autobuild
-comm==0.2.2
+comm==0.2.3
     # via
     #   ipykernel
     #   ipywidgets
-contourpy==1.3.1
+contourpy==1.3.3
     # via matplotlib
-coverage[toml]==7.6.10
-    # via
-    #   codecov
-    #   pytest-cov
+coverage[toml]==7.17.3
+    # via pytest-cov
 cycler==0.12.1
     # via matplotlib
-debugpy==1.8.14
+debugpy==1.8.22
     # via ipykernel
-decorator==5.2.1
-    # via ipython
 defusedxml==0.7.1
     # via nbconvert
-docutils==0.21.2
+docutils==0.22.4
     # via
     #   myst-parser
     #   nbsphinx
     #   readme-renderer
     #   sphinx
-executing==2.2.0
+executing==2.3.0
     # via stack-data
-farama-notifications==0.0.4
+farama-notifications==0.0.6
     # via gymnasium
-fastjsonschema==2.21.1
+fastjsonschema==2.22.3
     # via nbformat
-filelock==3.16.1
+filelock==4.2.11
     # via torch
-flake8==7.1.1
+flake8==7.5.0
     # via gymcts (pyproject.toml)
-fonttools==4.55.3
+fonttools==4.68.0
     # via matplotlib
-fqdn==1.5.1
+fqdn==1.6.0
     # via jsonschema
-fsspec==2024.12.0
+fsspec==2026.9.0
     # via torch
-furo==2024.8.6
+furo==2025.12.19
     # via gymcts (pyproject.toml)
-graph-jsp-env==0.3.3
+graph-jsp-env==1.1.1
     # via gymcts (pyproject.toml)
-graph-matrix-jsp-env==0.3.2
+graph-matrix-jsp-env==1.0.1
     # via gymcts (pyproject.toml)
-gym==0.26.2
-    # via jssenv
-gym-notices==0.0.8
-    # via gym
-gymnasium==1.0.0
+gymnasium==1.4.0
     # via
     #   graph-jsp-env
     #   graph-matrix-jsp-env
     #   gymcts (pyproject.toml)
+    #   jssenv
     #   stable-baselines3
-h11==0.14.0
+h11==0.16.0
     # via
     #   httpcore
     #   uvicorn
-httpcore==1.0.8
+httpcore==1.0.9
     # via httpx
 httpx==0.28.1
     # via jupyterlab
-idna==3.10
+id==1.6.1
+    # via twine
+idna==3.20
     # via
     #   anyio
     #   httpx
     #   jsonschema
     #   requests
-imageio==2.37.0
+imageio==2.38.2
     # via jssenv
-imagesize==1.4.1
+imagesize==2.0.1
     # via sphinx
-immutabledict==4.2.1
+immutabledict==4.3.1
     # via ortools
-importlib-metadata==8.5.0
+importlib-metadata==10.2.0
     # via keyring
-iniconfig==2.0.0
+iniconfig==2.3.1
     # via pytest
-ipykernel==6.29.5
+ipykernel==7.4.0
     # via
     #   jupyter
     #   jupyter-console
     #   jupyterlab
-ipython==9.1.0
+ipython==9.18.1
     # via
     #   ipykernel
     #   ipywidgets
     #   jupyter-console
 ipython-pygments-lexers==1.1.1
     # via ipython
-ipywidgets==8.1.6
+ipywidgets==8.1.9
     # via jupyter
 isoduration==20.11.0
     # via jsonschema
 jaraco-classes==3.4.0
     # via keyring
-jaraco-context==6.0.1
+jaraco-context==6.1.2
     # via keyring
-jaraco-functools==4.1.0
+jaraco-functools==4.6.0
     # via keyring
-jedi==0.19.2
+jedi==0.20.1
     # via ipython
-jinja2==3.1.5
+jinja2==3.1.6
     # via
     #   jupyter-server
     #   jupyterlab
@@ -181,28 +179,32 @@ jinja2==3.1.5
     #   nbsphinx
     #   sphinx
     #   torch
-json5==0.12.0
+json5==0.17.3
     # via jupyterlab-server
-jsonpointer==3.0.0
+jsonpointer==3.12
     # via jsonschema
-jsonschema[format-nongpl]==4.23.0
+jsonschema[format-nongpl]==4.26.0
     # via
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jsonschema-specifications==2024.10.1
+jsonschema-specifications==2025.9.1
     # via jsonschema
-jsp-instance-utils==1.0.2
+jsp-instance-utils==1.0.4
     # via gymcts (pyproject.toml)
-jsp-vis==1.1.0
+jsp-vis==1.4.0
     # via
     #   graph-matrix-jsp-env
     #   jsp-instance-utils
-jssenv==1.0.2
+jssenv==1.1.0
     # via gymcts (pyproject.toml)
 jupyter==1.1.1
     # via gymcts (pyproject.toml)
-jupyter-client==8.6.3
+jupyter-builder==1.3.0
+    # via
+    #   jupyterlab
+    #   notebook
+jupyter-client==8.10.0
     # via
     #   ipykernel
     #   jupyter-console
@@ -210,9 +212,10 @@ jupyter-client==8.6.3
     #   nbclient
 jupyter-console==6.6.3
     # via jupyter
-jupyter-core==5.7.2
+jupyter-core==5.9.1
     # via
     #   ipykernel
+    #   jupyter-builder
     #   jupyter-client
     #   jupyter-console
     #   jupyter-server
@@ -220,121 +223,131 @@ jupyter-core==5.7.2
     #   nbclient
     #   nbconvert
     #   nbformat
-jupyter-events==0.12.0
+jupyter-events==0.12.1
     # via jupyter-server
-jupyter-lsp==2.2.5
+jupyter-lsp==2.3.1
     # via jupyterlab
-jupyter-server==2.15.0
+jupyter-server==2.21.1
     # via
     #   jupyter-lsp
     #   jupyterlab
     #   jupyterlab-server
     #   notebook
     #   notebook-shim
-jupyter-server-terminals==0.5.3
+jupyter-server-terminals==0.5.4
     # via jupyter-server
-jupyterlab==4.4.1
+jupyterlab==4.6.6
     # via
     #   jupyter
     #   notebook
 jupyterlab-pygments==0.3.0
     # via nbconvert
-jupyterlab-server==2.27.3
+jupyterlab-server==2.28.1
     # via
     #   jupyterlab
     #   notebook
-jupyterlab-widgets==3.0.14
+jupyterlab-widgets==3.0.17
     # via ipywidgets
-jupytext==1.17.0
+jupytext==1.19.6
     # via gymcts (pyproject.toml)
-kaleido==0.2.1
+kaleido==1.5.0
     # via
     #   graph-jsp-env
     #   jsp-vis
     #   jssenv
-keyring==25.6.0
+keyring==25.7.0
     # via twine
-kiwisolver==1.4.8
+kiwisolver==1.5.1
     # via matplotlib
-markdown-it-py==3.0.0
+lark==1.3.1
+    # via rfc3987-syntax
+lazy-importer==0.1.0
+    # via importlib-metadata
+librt==0.16.0
+    # via mypy
+logistro==2.0.1
+    # via
+    #   choreographer
+    #   kaleido
+markdown-it-py==4.3.0
     # via
     #   jupytext
     #   mdit-py-plugins
     #   myst-parser
     #   rich
-markupsafe==3.0.2
+markupsafe==3.0.4
     # via
     #   jinja2
     #   nbconvert
-matplotlib==3.8.4
+matplotlib==3.11.2
     # via
     #   graph-jsp-env
     #   graph-matrix-jsp-env
     #   gymcts (pyproject.toml)
     #   jsp-vis
-    #   stable-baselines3
-matplotlib-inline==0.1.7
+matplotlib-inline==0.2.2
     # via
     #   ipykernel
     #   ipython
 mccabe==0.7.0
     # via flake8
-mdit-py-plugins==0.4.2
+mdit-py-plugins==0.7.0
     # via
     #   jupytext
     #   myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-mistune==3.1.0
+mistune==3.4.0
     # via nbconvert
-more-itertools==10.6.0
+more-itertools==11.2.1
     # via
     #   jaraco-classes
     #   jaraco-functools
 mpmath==1.3.0
     # via sympy
-mypy==1.14.1
+mypy==2.4.1
     # via gymcts (pyproject.toml)
-mypy-extensions==1.0.0
+mypy-extensions==1.2.0
     # via mypy
-myst-parser==4.0.0
+myst-parser==5.2.0
     # via gymcts (pyproject.toml)
-nbclient==0.10.2
+narwhals==2.28.0
+    # via plotly
+nbclient==0.11.0
     # via nbconvert
-nbconvert==7.16.5
+nbconvert==7.17.2
     # via
     #   jupyter
     #   jupyter-server
     #   nbsphinx
-nbformat==5.10.4
+nbformat==5.11.1
     # via
     #   jupyter-server
     #   jupytext
     #   nbclient
     #   nbconvert
     #   nbsphinx
-nbsphinx==0.9.6
+nbsphinx==0.9.8
     # via gymcts (pyproject.toml)
-nest-asyncio==1.6.0
+nest-asyncio2==1.7.4
     # via ipykernel
-networkx==3.4.2
+networkx==3.6.1
     # via
     #   graph-jsp-env
     #   torch
-nh3==0.2.20
+nh3==0.3.8
     # via readme-renderer
-notebook==7.4.1
+notebook==7.6.5
     # via jupyter
 notebook-shim==0.2.4
     # via
     #   jupyterlab
     #   notebook
-numpy==1.26.4
+numpy==2.4.6
     # via
     #   contourpy
     #   graph-jsp-env
     #   graph-matrix-jsp-env
-    #   gym
     #   gymcts (pyproject.toml)
     #   gymnasium
     #   imageio
@@ -346,15 +359,15 @@ numpy==1.26.4
     #   ortools
     #   pandas
     #   stable-baselines3
-opencv-python==4.11.0.86
+opencv-python==5.0.0.93
     # via
     #   graph-jsp-env
     #   jsp-vis
-ortools==9.12.4544
+ortools==9.15.6755
     # via jsp-instance-utils
 overrides==7.7.0
     # via jupyter-server
-packaging==24.2
+packaging==26.3
     # via
     #   build
     #   ipykernel
@@ -363,126 +376,129 @@ packaging==24.2
     #   jupyterlab
     #   jupyterlab-server
     #   jupytext
+    #   kaleido
     #   matplotlib
     #   nbconvert
     #   plotly
     #   pytest
     #   sphinx
     #   twine
-pandas==2.2.3
+    #   wheel
+pandas==3.1.1
     # via
     #   graph-jsp-env
     #   jsp-vis
     #   jssenv
     #   ortools
-    #   stable-baselines3
 pandoc==2.4
     # via gymcts (pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
-parso==0.8.4
+parso==0.8.7
     # via jedi
+pathspec==1.1.1
+    # via mypy
 pexpect==4.9.0
     # via ipython
-pillow==11.1.0
+pillow==13.0.0
     # via
     #   imageio
     #   matplotlib
-pip-tools==7.4.1
+pip-tools==7.7.0
     # via gymcts (pyproject.toml)
-pkginfo==1.12.0
-    # via twine
-platformdirs==4.3.6
-    # via jupyter-core
-plotly==5.24.1
+platformdirs==4.14.5
+    # via
+    #   choreographer
+    #   jupyter-core
+plotly==7.1.0
     # via
     #   graph-jsp-env
     #   jsp-vis
     #   jssenv
-pluggy==1.5.0
-    # via pytest
-plumbum==1.9.0
+pluggy==1.7.0
+    # via
+    #   pytest
+    #   pytest-cov
+plumbum==2.0.2
     # via pandoc
 ply==3.11
     # via pandoc
-prometheus-client==0.21.1
+prometheus-client==0.26.0
     # via jupyter-server
-prompt-toolkit==3.0.51
+prompt-toolkit==3.0.53
     # via
     #   ipython
     #   jupyter-console
-protobuf==5.29.3
+protobuf==6.33.6
     # via ortools
-psutil==7.0.0
+psutil==7.2.2
     # via
-    #   ipykernel
+    #   ipython
     #   jssenv
 ptyprocess==0.7.0
     # via
     #   pexpect
     #   terminado
-pure-eval==0.2.3
+pure-eval==0.2.4
     # via stack-data
-pycodestyle==2.12.1
+pycodestyle==2.15.0
     # via flake8
-pycparser==2.22
+pycparser==3.12
     # via cffi
-pyflakes==3.2.0
+pyflakes==4.1.0
     # via flake8
-pygments==2.19.1
+pygments==2.21.0
     # via
+    #   accessible-pygments
     #   furo
     #   ipython
     #   ipython-pygments-lexers
     #   jupyter-console
     #   nbconvert
+    #   pytest
     #   readme-renderer
     #   rich
     #   sphinx
-pyparsing==3.2.1
+pyparsing==3.3.3
     # via matplotlib
-pyproject-hooks==1.2.0
+pyproject-hooks==1.3.3
     # via
     #   build
     #   pip-tools
-pytest==8.3.4
+pytest==9.2.0
     # via
     #   gymcts (pyproject.toml)
-    #   jssenv
     #   pytest-cov
-pytest-cov==6.0.0
+pytest-cov==7.1.0
     # via gymcts (pyproject.toml)
-python-dateutil==2.9.0.post0
+python-dateutil==4.0.0
     # via
     #   arrow
     #   jupyter-client
     #   matplotlib
     #   pandas
-python-json-logger==3.3.0
+python-json-logger==4.2.0
     # via jupyter-events
-pytz==2024.2
-    # via pandas
-pyyaml==6.0.2
+pyyaml==6.0.3
     # via
     #   jupyter-events
     #   jupytext
     #   myst-parser
-pyzmq==26.2.0
+pyzmq==27.3.0
     # via
     #   ipykernel
     #   jupyter-client
     #   jupyter-console
     #   jupyter-server
-readme-renderer==44.0
+readme-renderer==46.0
     # via twine
-referencing==0.35.1
+referencing==0.37.0
     # via
     #   jsonschema
     #   jsonschema-specifications
     #   jupyter-events
-requests==2.32.3
+requests==2.34.2
     # via
-    #   codecov
     #   jsp-instance-utils
     #   jssenv
     #   jupyterlab-server
@@ -501,29 +517,31 @@ rfc3986-validator==0.1.1
     # via
     #   jsonschema
     #   jupyter-events
-rich==13.9.4
+rfc3987-syntax==1.1.0
+    # via jsonschema
+rich==15.0.0
     # via
     #   graph-jsp-env
     #   graph-matrix-jsp-env
     #   gymcts (pyproject.toml)
     #   twine
-rpds-py==0.22.3
+roman-numerals==4.1.0
+    # via sphinx
+rpds-py==2026.9.1
     # via
     #   jsonschema
     #   referencing
-send2trash==1.8.3
+send2trash==2.2.0
     # via jupyter-server
+simplejson==4.3.0
+    # via choreographer
 six==1.17.0
-    # via
-    #   python-dateutil
-    #   rfc3339-validator
-sniffio==1.3.1
-    # via anyio
-snowballstemmer==2.2.0
+    # via rfc3339-validator
+snowballstemmer==3.1.1
     # via sphinx
-soupsieve==2.6
+soupsieve==4.1.1
     # via beautifulsoup4
-sphinx==8.1.3
+sphinx==9.0.4
     # via
     #   furo
     #   gymcts (pyproject.toml)
@@ -532,7 +550,7 @@ sphinx==8.1.3
     #   sphinx-autobuild
     #   sphinx-basic-ng
     #   sphinx-copybutton
-sphinx-autobuild==2024.10.3
+sphinx-autobuild==2025.8.25
     # via gymcts (pyproject.toml)
 sphinx-basic-ng==1.0.0b2
     # via furo
@@ -544,31 +562,29 @@ sphinxcontrib-devhelp==2.0.0
     # via sphinx
 sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
-sphinxcontrib-jsmath==1.0.1
+sphinxcontrib-jsmath==2.0.0
     # via sphinx
 sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
-stable-baselines3==2.4.1
+stable-baselines3==2.9.2
     # via gymcts (pyproject.toml)
 stack-data==0.6.3
     # via ipython
-starlette==0.45.2
+starlette==1.10.0
     # via sphinx-autobuild
-sympy==1.13.1
+sympy==1.14.0
     # via torch
-tenacity==9.0.0
-    # via plotly
 terminado==0.18.1
     # via
     #   jupyter-server
     #   jupyter-server-terminals
-tinycss2==1.4.0
+tinycss2==1.5.1
     # via bleach
-torch==2.5.1
+torch==2.15.0
     # via stable-baselines3
-tornado==6.4.2
+tornado==6.6.1
     # via
     #   ipykernel
     #   jupyter-client
@@ -576,12 +592,12 @@ tornado==6.4.2
     #   jupyterlab
     #   notebook
     #   terminado
-traitlets==5.14.3
+traitlets==5.16.1
     # via
-    #   comm
     #   ipykernel
     #   ipython
     #   ipywidgets
+    #   jupyter-builder
     #   jupyter-client
     #   jupyter-console
     #   jupyter-core
@@ -593,47 +609,55 @@ traitlets==5.14.3
     #   nbconvert
     #   nbformat
     #   nbsphinx
-twine==6.0.1
+twine==7.0.0
     # via gymcts (pyproject.toml)
-types-python-dateutil==2.9.0.20241206
-    # via arrow
-typing-extensions==4.12.2
+typing-extensions==4.16.0
     # via
     #   anyio
+    #   beautifulsoup4
     #   gymcts (pyproject.toml)
     #   gymnasium
     #   ipython
+    #   jupyter-client
+    #   jupyterlab
     #   mypy
+    #   ortools
+    #   plumbum
+    #   referencing
+    #   starlette
     #   torch
-tzdata==2024.2
-    # via pandas
+tzdata==2026.6
+    # via
+    #   arrow
+    #   python-dateutil
 uri-template==1.3.0
     # via jsonschema
-urllib3==2.3.0
+urllib3==2.8.0
     # via
+    #   id
     #   requests
     #   twine
-uvicorn==0.34.0
+uvicorn==0.54.0
     # via sphinx-autobuild
-watchfiles==1.0.4
+watchfiles==1.3.0
     # via sphinx-autobuild
-wcwidth==0.2.13
+wcwidth==0.9.4
     # via prompt-toolkit
-webcolors==24.11.1
+webcolors==25.10.0
     # via jsonschema
-webencodings==0.5.1
+webencodings==0.6.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.8.0
+websocket-client==1.9.2
     # via jupyter-server
-websockets==14.1
+websockets==17.4
     # via sphinx-autobuild
-wheel==0.45.1
+wheel==0.48.0
     # via pip-tools
-widgetsnbextension==4.0.14
+widgetsnbextension==4.0.16
     # via ipywidgets
-zipp==3.21.0
+zipp==4.1.2
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

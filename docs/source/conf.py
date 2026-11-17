@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'gymcts'
-copyright = '2025, Alexander Nasuta'
+copyright = '2026, Alexander Nasuta'
 author = 'Alexander Nasuta'
-release = '1.5.1'
+release = '1.6.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
